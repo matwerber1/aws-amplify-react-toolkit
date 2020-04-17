@@ -1,19 +1,68 @@
-# amazon-kinesis-data-generator
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Available Scripts
 
-Easily send data to your Kinesis Stream or Kinesis Firehose
+In the project directory, you can run:
 
-* * *
-## About
-The Amazon Kinesis Data Generator is a UI that simplifies how you send test data to Amazon Kinesis Streams or Amazon Kinesis Firehose.  Using the Amazon Kinesis Data Generator, you can create templates for your data, create random values to use for your data, and save the templates for future use.
+### `npm start`
 
-## Getting Started
-The easiest and recommended approach is to use the Github-hosted version of this project.  The second method is to clone/download this project and host it in your own S3 bucket.
+Runs the app in the development mode.<br />
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-### Using the Github-hosted UI
-Because the project is a collection of static HTML and JavaScript, you can use the application without deploying the code into your own AWS account.  However, you *will* need to create an Amazon Cognito User Pool in your account, and create a user in that pool.  A simple CloudFormation template and Lambda function is provided to simplify the creation of the Cognito User Pool and user.
+The page will reload if you make edits.<br />
+You will also see any lint errors in the console.
 
- To get started, go to the hosted [Kinesis Data Generator](https://awslabs.github.io/amazon-kinesis-data-generator/web/producer.html).  Instructions for creating the Cognito user in your account are located in [the application's documentation](https://awslabs.github.io/amazon-kinesis-data-generator/web/help.html).
+### `npm test`
 
-<br />
-<a href="https://awslabs.github.io/amazon-kinesis-data-generator/web/producer.html"><img border="0" src="web/img/akdg-login.jpg" width="920" height="275"></a>
+Launches the test runner in the interactive watch mode.<br />
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+
+### `npm run build`
+
+Builds the app for production to the `build` folder.<br />
+It correctly bundles React in production mode and optimizes the build for the best performance.
+
+The build is minified and the filenames include the hashes.<br />
+Your app is ready to be deployed!
+
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+
+### `npm run eject`
+
+**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+
+If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+
+You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+
+## Learn More
+
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+
+To learn React, check out the [React documentation](https://reactjs.org/).
+
+### Code Splitting
+
+This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+
+### Analyzing the Bundle Size
+
+This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+
+### Making a Progressive Web App
+
+This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+
+### Advanced Configuration
+
+This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
+
+### Deployment
+
+This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
+
+### `npm run build` fails to minify
+
+This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
