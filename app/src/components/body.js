@@ -13,7 +13,13 @@ const Body = view(() => {
     <React.Fragment>
       <CssBaseline />
       <Container maxWidth="sm" component="main">
-        <CustomAuthenticator displayType='login' />
+        
+        {appStore.cognito.configErrorMessage}
+
+        {appStore.cognito.configIsComplete
+          ? <CustomAuthenticator displayType='login' />
+          : <p>Please configure your Cognito settings before proceeding...</p>
+        }
         
         {appStore.cognito.authState === 'signedIn'
           ? <ShowWidgetsAfterSignIn /> : null

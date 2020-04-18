@@ -33,7 +33,7 @@ const CognitoConfigController = view(() => {
         justify="flex-end"
         alignItems="center"
       >
-        {appStore.cognito.authState === authStates.signIn ?
+        {(appStore.cognito.authState === authStates.signIn || !appStore.cognito.configIsComplete) ?
           <React.Fragment>
             <CognitoConfigureLink clickAction={toggleShowCognitoConfig} />
             <CognitoConfigureDialog
@@ -66,7 +66,7 @@ const CognitoConfigureLink = view(({ clickAction }) => {
 
 const CognitoConfigureDialog = view(({ showDialog, toggleDialog }) => {
 
-  const [dialogValues, setDialogValues] = useState(appStore.cognito)
+  const [dialogValues, setDialogValues] = useState(appStore.cognito.config)
 
   function updateDialogValue(key, value) {
     // We have to copy the object rather than just use its pointer
@@ -76,12 +76,13 @@ const CognitoConfigureDialog = view(({ showDialog, toggleDialog }) => {
   }
 
   function closeDialogWithSave() {
-    appStore.cognito = dialogValues;
+    appStore.cognito.config = dialogValues;
+    appStore.cognito.checkConfigIsComplete();
     closeDialog();
   }
 
   function closeDialogWithoutSave() {
-    setDialogValues(appStore.cognito);
+    setDialogValues(appStore.cognito.config);
     closeDialog();
   }
 
