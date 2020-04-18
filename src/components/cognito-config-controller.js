@@ -15,6 +15,9 @@ import { authStates } from './auth-states';
 import CustomAuthenticator from './custom-authenticator';
 import 'cross-fetch/polyfill';
 
+
+// Display a "Configure Cognito" link which, when clicked, opens a dialogue 
+// box where user can enter their cognito user pool, client ID, etc.
 const CognitoConfigController = view(() => {
 
   const [showCognitoConfig, setShowCognitoConfig] = useState(false);

@@ -17,6 +17,10 @@ import { view } from '@risingstack/react-easy-state';
 import appStore from './app-store';
 import 'cross-fetch/polyfill';
 
+// Here, the options param allows us to render two slightly different versions
+// of the Amplify Authenticator component. We do this because we display different
+// sections of the UI in different parts of our page. (i.e. everthing except
+// signout is shown in the center of the page, and signout is shown in the header).
 const CustomAuthenticator = view((options) => {
 
   const displayType = options.displayType || null;
@@ -74,9 +78,5 @@ const configureAmplifyAuth = () => {
     Auth: authParams
   });
 }
-
-
-
-
 
 export default CustomAuthenticator; 

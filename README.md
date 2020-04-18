@@ -1,4 +1,20 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Amazon Cognito UI Tester
+
+This project was inspired by the [Kinesis Data Generator](https://awslabs.github.io/amazon-kinesis-data-generator/web/producer.html).
+
+The idea is that I wanted to create a simple web UI where any user could plug in their Cognito credentials and then have a barebones template from which they can interact with their AWS resources using an associated Cognito Identity Pool with their Cognito User Pool.
+
+# Setup 
+
+Manually create a Cognito User Pool and within that user pool, create an application client. Also create and associate a Cognito Identity Pool to the Cognito User Pool. 
+
+For the "Auth" role associated to the identity pool, give the role whatever AWS IAM permissions you want to build into your browser app. 
+
+This example displays a widget after you log in that attempts to call EC2.DescribeInstances(), so you should at least give your auth role that permission if you want to see everything work.  
+
+
+
+# Usage
 
 ## Available Scripts
 

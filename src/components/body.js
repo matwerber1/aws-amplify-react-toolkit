@@ -16,14 +16,14 @@ const Body = view(() => {
         <CustomAuthenticator displayType='login' />
         
         {appStore.cognito.authState === 'signedIn'
-          ? <ShowWidgetsAfterAuth /> : null
+          ? <ShowWidgetsAfterSignIn /> : null
         }
       </Container>
     </React.Fragment>
   );
 });
 
-const ShowWidgetsAfterAuth = view(() => {
+const ShowWidgetsAfterSignIn = view(() => {
   return (
     <React.Fragment>
       <UserInfo />

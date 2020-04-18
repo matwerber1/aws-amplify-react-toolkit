@@ -6,6 +6,8 @@ import { Auth } from 'aws-amplify';
 // https://medium.com/dailyjs/design-patterns-with-react-easy-state-830b927acc7c
 // https://github.com/RisingStack/react-easy-state
 
+// This is our main state tracked across the app; react-easy-state is similar
+// to redux in concept but much easier to use:
 const appStore = store({
   Auth: Auth,
   cognito: {
@@ -39,6 +41,7 @@ const appStore = store({
   }
 });
 
+// When first loaded, let's get initial values from cookies (if available)
 appStore.loadStateFromCookies();
 
-export default appStore
+export default appStore;
