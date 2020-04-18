@@ -4,6 +4,10 @@ This project was inspired by the [Kinesis Data Generator](https://awslabs.github
 
 The idea is that I wanted to create a simple web UI where any user could plug in their Cognito credentials and then have a barebones template from which they can interact with their AWS resources using an associated Cognito Identity Pool with their Cognito User Pool.
 
+# Demo
+
+https://matwerber1.github.io/amazon-cognito-ui-tester
+
 # Setup 
 
 Manually create a Cognito User Pool and within that user pool, create an application client. Also create and associate a Cognito Identity Pool to the Cognito User Pool. 
