@@ -66,7 +66,7 @@ const CognitoConfigureLink = view(({ clickAction }) => {
 
 const CognitoConfigureDialog = view(({ showDialog, toggleDialog }) => {
 
-  const [dialogValues, setDialogValues] = useState(appStore.cognito.config)
+  const [dialogValues, setDialogValues] = useState(appStore.cognito.config);
 
   function updateDialogValue(key, value) {
     // We have to copy the object rather than just use its pointer
@@ -77,6 +77,9 @@ const CognitoConfigureDialog = view(({ showDialog, toggleDialog }) => {
 
   function closeDialogWithSave() {
     appStore.cognito.config = dialogValues;
+    console.log('Wrote cognito config to appStore:', dialogValues);
+    
+    appStore.saveStateToCookies();
     appStore.cognito.checkConfigIsComplete();
     closeDialog();
   }
