@@ -9,21 +9,35 @@ import appStore from './app-store';
 
 const Body = view(() => {
 
+  function renderBody() {
+    console.log(`appStore.cognito.authState = ${appStore.cognito.authState}`);
+    if (!appStore.cognito.configIsComplete) {
+      return (
+        <p>Please configure your Cognito settings before proceeding...</p>
+      );
+    }
+    else if (appStore.cognito.authState !== 'signedIn') {
+      return (
+        < CustomAuthenticator displayType='login' />
+      );
+    }
+    else if (appStore.cognito.authState === 'signedIn') {
+      return (
+        <ShowWidgetsAfterSignIn />
+      );
+    }
+    else {
+      return (
+        <p>Unhandled state :(</p>
+      );
+    }
+  } 
+
   return (
     <React.Fragment>
       <CssBaseline />
       <Container maxWidth="sm" component="main">
-        
-        {appStore.cognito.configErrorMessage}
-
-        {appStore.cognito.configIsComplete
-          ? <CustomAuthenticator displayType='login' />
-          : <p>Please configure your Cognito settings before proceeding...</p>
-        }
-        
-        {appStore.cognito.authState === 'signedIn'
-          ? <ShowWidgetsAfterSignIn /> : null
-        }
+        {renderBody()}
       </Container>
     </React.Fragment>
   );

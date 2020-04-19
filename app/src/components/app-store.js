@@ -16,10 +16,11 @@ const appStore = store({
       region: ''  
     },
     checkConfigIsComplete: () => {
-      if (appStore.cognito.config.userPoolId !== ''
-        && appStore.cognito.config.clientId !== ''
-        && appStore.cognito.config.identityPoolId !== ''
-        && appStore.cognito.config.region !== ''
+
+      if (appStore.cognito.config.userPoolId
+        && appStore.cognito.config.clientId
+        && appStore.cognito.config.identityPoolId
+        && appStore.cognito.config.region
       ) {
         // If the configuration is complete, we need to immediately call  
         // Amplify.configure() before we render any components that rely on 
@@ -47,11 +48,11 @@ const appStore = store({
     if (!appStore.loadedCookies) {
       const cookieValues = cookies.getAll();
       console.log('Loaded cookies:', cookieValues);
-      appStore.cognito.username = cookieValues.username
-      appStore.cognito.config.userPoolId = cookieValues.userPoolId;
-      appStore.cognito.config.clientId = cookieValues.clientId;
-      appStore.cognito.config.identityPoolId = cookieValues.identityPoolId;
-      appStore.cognito.config.region = cookieValues.region; 
+      appStore.cognito.username = cookieValues.username || '';
+      appStore.cognito.config.userPoolId = cookieValues.userPoolId || '';
+      appStore.cognito.config.clientId = cookieValues.clientId || '';
+      appStore.cognito.config.identityPoolId = cookieValues.identityPoolId || '';
+      appStore.cognito.config.region = cookieValues.region || ''; 
       appStore.loadedCookies = true;
       appStore.cognito.checkConfigIsComplete();
     }
