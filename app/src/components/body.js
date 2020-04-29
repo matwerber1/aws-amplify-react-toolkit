@@ -5,6 +5,8 @@ import { view } from '@risingstack/react-easy-state';
 import CustomAuthenticator from './custom-authenticator';
 import UserInfo from './user-info';
 import Ec2DescribeInstances from './ec2-describe-instances';
+import AwsCliProxy from './aws-cli-proxy';
+
 import appStore from './app-store';
 
 const Body = view(() => {
@@ -48,6 +50,7 @@ const ShowWidgetsAfterSignIn = view(() => {
     <React.Fragment>
       <UserInfo />
       <Ec2DescribeInstances />
+      <AwsCliProxy />
     </React.Fragment>
   )
 });
