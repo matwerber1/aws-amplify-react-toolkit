@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { view } from '@risingstack/react-easy-state';
 import EC2 from 'aws-sdk/clients/ec2';
-import appStore from './app-store';
 import JsonViewer from './json-viewer';
 import RegionSelector from './region-selector';
 
-const Ec2DescribeInstances = view(() => {
+const Ec2DescribeInstances = ({ Auth }) => {
 
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
@@ -18,10 +16,10 @@ const Ec2DescribeInstances = view(() => {
     async function fetchData() {
       try {
         setIsLoading(true);
-        var credentials = await appStore.Auth.currentCredentials();
+        var credentials = await Auth.currentCredentials();
         const ec2 = new EC2({
           region: region,
-          credentials: appStore.Auth.essentialCredentials(credentials)
+          credentials: Auth.essentialCredentials(credentials)
         });
         var reservations = [];
         var params = {};
@@ -70,6 +68,6 @@ const Ec2DescribeInstances = view(() => {
     </React.Fragment>
   );
   
-});
+};
 
 export default Ec2DescribeInstances; 

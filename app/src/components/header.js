@@ -5,14 +5,16 @@ import Typography from '@material-ui/core/Typography';
 import { view } from '@risingstack/react-easy-state';
 import CognitoConfigController from './cognito-config-controller';
 import 'cross-fetch/polyfill';
+import useStyles from './material-ui-styles.js';
 
 const Header = view(() => {
   
+  const classes = useStyles();
+
   return (
-    <AppBar position="static" color="default" elevation={0}>
+    <AppBar position="fixed" className={classes.appBarHeader}>
       <Toolbar>
-        
-        <Typography variant="h6" color="inherit">
+        <Typography variant="h6" noWrap>
           Amazon Cognito UI Tool
         </Typography>
        <CognitoConfigController />
