@@ -19,7 +19,7 @@ const AwsCliProxy = () => {
   async function invokeAwsCliProxy() {
 
     var credentials = await appStore.Auth.currentCredentials();
-    var essentialCredentials = appStore.essentialCredentials(credentials);
+    var essentialCredentials = appStore.Auth.essentialCredentials(credentials);
     const lambda = new Lambda({
       region: region,
       credentials: essentialCredentials
