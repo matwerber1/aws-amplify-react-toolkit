@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import Lambda from 'aws-sdk/clients/lambda';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+import appStore from './app-store.js';
+import Widget from './widget.js';
 
-const AwsCliProxy = ({ Auth }) => {
+const AwsCliProxy = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
@@ -16,8 +18,8 @@ const AwsCliProxy = ({ Auth }) => {
   
   async function invokeAwsCliProxy() {
 
-    var credentials = await Auth.currentCredentials();
-    var essentialCredentials = Auth.essentialCredentials(credentials);
+    var credentials = await appStore.Auth.currentCredentials();
+    var essentialCredentials = appStore.essentialCredentials(credentials);
     const lambda = new Lambda({
       region: region,
       credentials: essentialCredentials
@@ -63,7 +65,7 @@ const AwsCliProxy = ({ Auth }) => {
   }
 
   return (
-    <div className="Widget">
+    <Widget>
       <h2>AWS CLI Proxy</h2>
       
       <TextField
@@ -73,13 +75,9 @@ const AwsCliProxy = ({ Auth }) => {
         onChange={e => setCliCommand(e.target.value)} 
         fullWidth
       />
-
       <br />
       <br/>
-      
       <Button variant="contained" onClick={invokeAwsCliProxy}>Run command!</Button>
-      
-      
       <br/>
       <br/>
       {isLoaded ? 
@@ -94,14 +92,10 @@ const AwsCliProxy = ({ Auth }) => {
         />
         : null
       }
-
       {isLoading ? "Waiting for response from Lambda CLI proxy..." : null}
-      
       {isError ? errorMessage : null}
-    
-    </div>
+    </Widget>
   );
-  
 };
 
 export default AwsCliProxy; 

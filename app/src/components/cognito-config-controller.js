@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
-import Link from '@material-ui/core/Link';
-import SettingsIcon from '@material-ui/icons/Settings';
 import Grid from '@material-ui/core/Grid';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -11,56 +9,28 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { view } from '@risingstack/react-easy-state';
 import appStore from './app-store';
-import { authStates } from './auth-states';
-import CustomAuthenticator from './custom-authenticator';
 import 'cross-fetch/polyfill';
 
-
-// Display a "Configure Cognito" link which, when clicked, opens a dialogue 
-// box where user can enter their cognito user pool, client ID, etc.
 const CognitoConfigController = view(() => {
 
-  const [showCognitoConfig, setShowCognitoConfig] = useState(false);
-  const toggleShowCognitoConfig = () => {
-    setShowCognitoConfig(!showCognitoConfig);
+  const [showConfig, setShowConfig] = useState(false);
+
+  const toggleShowConfig = () => {
+    setShowConfig(!showConfig);
   }
   
   return (
     <React.Fragment>
-      <Grid
-        container
-        direction="row"
-        justify="flex-end"
-        alignItems="center"
-      >
-        {(appStore.cognito.authState === authStates.signIn || !appStore.cognito.configIsComplete) ?
-          <React.Fragment>
-            <CognitoConfigureLink clickAction={toggleShowCognitoConfig} />
-            <CognitoConfigureDialog
-              showDialog={showCognitoConfig}
-              toggleDialog={toggleShowCognitoConfig} 
-            />
-          </React.Fragment>
-          : null
-        }
-        {appStore.cognito.authState === authStates.signedIn ?
-          <CustomAuthenticator displayType='logout' />
-        : null
-        }
-      </Grid>
-    </React.Fragment>
-  );
-});
-
-
-const CognitoConfigureLink = view(({ clickAction }) => {
-  return (
-    <Grid item>
-      <SettingsIcon fontSize="small" />
-      <Link href="#" onClick={clickAction}>
-        Configure Cognito User Pool & Identity Pool
-      </Link>
+      <Grid item>
+      <Button onClick={toggleShowConfig} color="primary" variant="contained">
+        Configure Cognito
+      </Button>
     </Grid>
+      <CognitoConfigureDialog
+          showDialog={showConfig}
+          toggleDialog={toggleShowConfig} 
+      />
+    </React.Fragment>
   );
 });
 
@@ -76,10 +46,9 @@ const CognitoConfigureDialog = view(({ showDialog, toggleDialog }) => {
   }
 
   function closeDialogWithSave() {
-    appStore.cognito.config = dialogValues;
-    console.log('Wrote cognito config to appStore:', dialogValues);
-    
+    appStore.cognito.config = dialogValues;    
     appStore.saveStateToCookies();
+    console.log('Wrote cognito config to appStore:', dialogValues);
     appStore.cognito.checkConfigIsComplete();
     closeDialog();
   }

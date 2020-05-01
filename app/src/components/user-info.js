@@ -4,6 +4,7 @@ import 'cross-fetch/polyfill';
 import { Auth } from 'aws-amplify';
 import appStore from './app-store';
 import JsonViewer from './json-viewer';
+import Widget from './widget.js';
 
 const UserInfo = view(() => {
 
@@ -13,10 +14,10 @@ const UserInfo = view(() => {
     });
 
   return (
-    <React.Fragment>
-      <h2>Authentication Info:</h2>
+    <Widget>
+      <h2>Authentication Info</h2>
       <JsonViewer jsonObject={appStore.cognito.currentCredentials} />
-    </React.Fragment>
+    </Widget>
   );
 });
 

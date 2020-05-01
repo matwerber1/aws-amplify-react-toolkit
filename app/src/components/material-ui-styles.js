@@ -6,17 +6,14 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
   },
+  title: {
+    flexGrow: 1,
+  },
   appBarHeader: {
     zIndex: theme.zIndex.drawer + 1,
   },
-  appBarFooter: {
-    position: 'fixed',
-    top: 'auto',
-    bottom: 0,
-    textAlign: 'center',
-    width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: drawerWidth,
-    zIndex: theme.zIndex.drawer + 1,
+  footer: {
+    textAlign: 'center'
   },
   drawer: {
     width: drawerWidth,
@@ -30,8 +27,11 @@ const useStyles = makeStyles((theme) => ({
   },
   content: {
     flexGrow: 1,
-    padding: theme.spacing(3),
+    padding: theme.spacing(1),
   },
+  widgetContainer: {
+    p: 4
+  }
 }));
 
 export default useStyles;

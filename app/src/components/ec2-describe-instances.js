@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import EC2 from 'aws-sdk/clients/ec2';
 import JsonViewer from './json-viewer';
 import RegionSelector from './region-selector';
+import appStore from './app-store.js';
+import Widget from './widget.js';
 
-const Ec2DescribeInstances = ({ Auth }) => {
+const Ec2DescribeInstances = () => {
 
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
@@ -16,10 +18,10 @@ const Ec2DescribeInstances = ({ Auth }) => {
     async function fetchData() {
       try {
         setIsLoading(true);
-        var credentials = await Auth.currentCredentials();
+        var credentials = await appStore.Auth.currentCredentials();
         const ec2 = new EC2({
           region: region,
-          credentials: Auth.essentialCredentials(credentials)
+          credentials: appStore.Auth.essentialCredentials(credentials)
         });
         var reservations = [];
         var params = {};
@@ -61,11 +63,11 @@ const Ec2DescribeInstances = ({ Auth }) => {
   }
 
   return (
-    <React.Fragment>
+    <Widget>
       <h2>EC2 Instances:</h2>
       <RegionSelector value={region} setFunction={setRegion}/><br/>
       {renderResponse()}
-    </React.Fragment>
+    </Widget>
   );
   
 };

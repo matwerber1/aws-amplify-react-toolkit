@@ -1,14 +1,26 @@
 import React from 'react';
-import Container from '@material-ui/core/Container';
-import Box from '@material-ui/core/Box';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
 import useStyles from './material-ui-styles.js';
+import Box from '@material-ui/core/Box';
+import Container from '@material-ui/core/Container';
 import Paper from '@material-ui/core/Paper';
 
 function Footer() {
 
   const classes = useStyles();
+
+
+  return (
+    <Container className={classes.footer}>
+       <Box>
+          These works are solely my own and not those of my employer.
+          <br />
+          Copyright © Mat Werber
+      </Box>
+    </Container>
+   
+  );
+
+   /*
 
   return (
     <div className={classes.appBarFooter}>
@@ -17,6 +29,8 @@ function Footer() {
          Copyright © Mat Werber
     </div>
   );
+  */
+ 
 }
 
 export default Footer; 

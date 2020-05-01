@@ -1,20 +1,32 @@
 import { store } from '@risingstack/react-easy-state';
 import cookies from './cookies';
 import Amplify, { Auth } from 'aws-amplify';
-
-// https://medium.com/dailyjs/design-patterns-with-react-easy-state-830b927acc7c
-// https://github.com/RisingStack/react-easy-state
+import { authStates } from './auth-states';
 
 const appStore = store({
+  // "Auth" is the Cognito Auth object; we have to congfigure it before use, and
+  // rather than configuring it separately in each component, we configure it in
+  // one place (our appStore state) and use it where needed.
   Auth: Auth,
+
   cognito: {
+    authState: undefined,
+
+    // When authState changes in other componnents, we call this function:
+    updateAuthState: (newAuthState) => {
+      appStore.cognito.loggedIn = (newAuthState === authStates.signedIn);
+      appStore.cognito.authState = newAuthState;
+    },
+
+    // The user populates these values using the UI (and/or they are pulled from cookies from prior configs)
     config: {
-      // These four values are needed before we can call Amplify.configure():
       userPoolId: '',
       clientId: '',
       identityPoolId: '',
       region: ''  
     },
+
+    // We call this each time the user opens and subsequently closes the config dialog box in the UI.
     checkConfigIsComplete: () => {
 
       if (appStore.cognito.config.userPoolId
@@ -64,12 +76,12 @@ const appStore = store({
     cookies.set('region', appStore.cognito.config.region);
     console.log(`Saved config to cookies:`, appStore.cognito.config);
   },
-  clearLoginSession: () => {
+  /*clearLoginSession: () => {
     // Not sure if we're actually using this function???
     console.log('Auth session cleared.');
     appStore.loggedIn = false;
     appStore.accessToken = {};
-  },
+  },*/
   configureAuth: () => {
     try {
       Amplify.configure({

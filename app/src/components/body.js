@@ -1,10 +1,5 @@
 import React from 'react';
-
-import Container from '@material-ui/core/Container';
 import { view } from '@risingstack/react-easy-state';
-import CustomAuthenticator from './custom-authenticator';
-import UserInfo from './user-info';
-import Ec2DescribeInstances from './ec2-describe-instances';
 import AwsCliProxy from './aws-cli-proxy';
 import Drawer from '@material-ui/core/Drawer';
 import appStore from './app-store';
@@ -17,16 +12,20 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
-import { authStates } from './auth-states.js';
+import Footer from './footer.js';
+import CustomAuthenticator from './custom-authenticator';
+import Ec2DescribeInstances from './ec2-describe-instances';
+import UserInfo from './user-info';
 
 const Body = view(() => {
 
   console.log(`authState = ${appStore.cognito.authState}`);
-  var signedIn = (appStore.cognito.authState === authStates.signedIn);
+
+  const loggedIn = (appStore.cognito.loggedIn);
 
   return (
     <React.Fragment>
-      {signedIn ? <SignedInBody/> : <SignInBody/>}
+      {loggedIn ? <SignedInBody/> : <SignInBody/>}
     </React.Fragment>
   );
 });
@@ -36,7 +35,8 @@ const SignInBody = view(() => {
   const classes = useStyles();
   return (
     <main className={classes.content}>
-      < CustomAuthenticator displayType='login' />
+      <CustomAuthenticator displayType='login' updateAuthState={appStore.cognito.updateAuthState} />
+      <Footer/>
     </main>
   );
 });
@@ -48,8 +48,12 @@ const SignedInBody = view(() => {
       <AppDrawer/>
       <main className={classes.content}>
         <Toolbar />
-        <Ec2DescribeInstances Auth={appStore.Auth} />
-        <AwsCliProxy Auth={appStore.Auth}/>
+        {/* ------- This is where you put the body after user is authenticated ---------*/}
+        <UserInfo />
+        <Ec2DescribeInstances />
+        <AwsCliProxy />
+        {/* ----------------------------------------------------------------------------*/}
+        <Footer/>
       </main>
     </React.Fragment>
   );
