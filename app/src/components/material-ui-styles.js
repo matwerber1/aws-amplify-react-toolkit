@@ -19,6 +19,9 @@ const useStyles = makeStyles((theme) => ({
     width: drawerWidth,
     flexShrink: 0,
   },
+  drawerHeaderContainer: {
+    textAlign: 'center',
+  },
   drawerPaper: {
     width: drawerWidth,
   },
