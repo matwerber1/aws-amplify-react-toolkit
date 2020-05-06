@@ -1,8 +1,10 @@
 import React from 'react';
 import { view } from '@risingstack/react-easy-state';
 import 'cross-fetch/polyfill';
+
 import Button from '@material-ui/core/Button';
-import appStore from './app-store.js';
+
+import appStore from '../common/app-store.js';
 
 const CustomSignOut = view(() => {
   

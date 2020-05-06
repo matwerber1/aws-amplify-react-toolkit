@@ -2,7 +2,17 @@
 
 This project was inspired by the [Kinesis Data Generator](https://awslabs.github.io/amazon-kinesis-data-generator/web/producer.html).
 
-The idea is that I wanted to create a simple web UI where any user could plug in their Cognito credentials and then have a barebones template from which they can interact with their AWS resources using an associated Cognito Identity Pool with their Cognito User Pool.
+This project provides a React web UI that lets you plug in the details of an existing Cognito User Pool and Identity pool and then log in. 
+
+After logging in, you're shown a blank dashboard where you can then write code to make AWS SDK API calls. Authentication and authorization for the API calls is handled by your Cognito Identity Pool.
+
+The idea is that I want a reusable barebones web UI that I can use to build simple graphical demos of various AWS services. The UI takes a "widget" model where each widget is, in theory, a different test or demo of functionality. 
+
+This barebones UI comes pre-baked with two widgets:
+
+1. **Cognito Info** - a widget "that simply shows you the JWT from Cognito after authentication, so you can get an idea of how Cognito works. 
+
+2. **EC2 Instances** - a widget that makes an EC2.describeInstances() API call for a region that you specify and shows you which EC2 instances are running in that region. Note - this widget will only work if your Cognito Identity pool's auth role grants users the ability to make this API call.
 
 # Demo
 
@@ -10,79 +20,118 @@ https://matwerber1.github.io/amazon-cognito-ui-tester
 
 # Setup 
 
-Manually create a Cognito User Pool and within that user pool, create an application client. Also create and associate a Cognito Identity Pool to the Cognito User Pool. 
+## Prerequisites
 
-For the "Auth" role associated to the identity pool, give the role whatever AWS IAM permissions you want to build into your browser app. 
+### Cognito User Pool and Identity Pool
 
-This example displays a widget after you log in that attempts to call EC2.DescribeInstances(), so you should at least give your auth role that permission if you want to see everything work.  
+1. Outside of this project, create a Cognito User Pool and within that user pool, create an application client. Also create and associate a Cognito Identity Pool to the Cognito User Pool. 
 
+2. For the "Auth" role associated to the identity pool, give the role whatever AWS IAM permissions you want to build into your browser app. 
 
+## Local Deployment
 
-# Usage
+1. Clone this project
 
-## Available Scripts
+  ```sh
+  git clone https://github.com/matwerber1/amazon-cognito-ui-tester.git
+  ```
 
-In the project directory, you can run:
+2. Install dependencies
 
-### `npm start`
+  ```sh
+  npm install
+  ```
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+3. Run local version of the web UI
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+  ```sh
+  npm run start
+  ```
 
-### `npm test`
+## Publishing a github.io webpage
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+This optional step allows you to publish your site to GitHub.io. This project's dependencies include [react-gh-pages](https://github.com/gitname/react-gh-pages), which makes it a breeze to publish to github.io. 
 
-### `npm run build`
+1. Complete the **Local Deployment** steps above to make sure things are working as expected.
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+2. Open package.json and edit the replace `YOUR_GIT_USERNAME` and `YOUR_REPOSITORY_NAME` with proper values:
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+  ```
+  "homepage": "https://YOUR_GIT_USERNAME.github.io/YOUR_REPOSITORY_NAME",
+  ```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+3. Build the web app app, publish to a `gh-pages` branch:
 
-### `npm run eject`
+  ```
+  npm run deploy
+  ```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+Read more about how this works at [react-gh-pages](https://github.com/gitname/react-gh-pages).
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+# Styling with material-ui
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+I'm a total amateur at front-end design, so I opted to try [material-ui](material-ui.com/) for the first time. Quite pleased with the results relative to what I could have done on my own. 
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+# React Component Overview
 
-## Learn More
+A selection of key files and usage is below. These files are relative to the ./src/ directory of this project: 
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## [./components/common/app-store.js](./src/components/common/app-store.js)
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+This file imports [@risingstack/react-easy-state](https://github.com/RisingStack/react-easy-state) and creates an `appStore` object that contains our shared state across the app. React-easy-state is (in my humble opinion) a very simple state management alternative to something like Redux.
 
-### Code Splitting
+As long as you wrap all of your components in a view, e.g. `const myFunctionalReactComponent = view(() => {})`, the component will re-render if changes are detected to any state variables within the component. 
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+In this case, we create and export an `appStore` object that primarily holds the user's Cognito configuration (e.g. client ID, pool ID) and their authentication state. We import it anywhere we may need this information, such as the components that log into Cognito or the components that only conditionally display when a user is logged in. 
 
-### Analyzing the Bundle Size
+When the user enters non-sensitive info like Cognito client ID or pool ID, we save them to cookies. When the app first loads, we also call a method within appStore to attempt to load values from cookies (if they exist) to avoid the need to retype the values each time. 
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+## [./App.js](./src/App.js)
 
-### Making a Progressive Web App
+App displays a `<Header>` component and a <`Body`> component. 
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+If the user is not logged in, the `<Header>` will display a button that allows the user to enter/edit their Cognito configuration, i.e. their user pool ID, client ID, identity pool ID, and region. If the user is logged in, the `<Header>` displays a sign out button. 
 
-### Advanced Configuration
+If the user is not logged in, the `<Body>` will display a Cognito login componennt (which also includes components for user creation, password reset, etc. - if enabled for your user pool). If the user is logged in, the `<Body>` will instead display a left navigation bar with a list of "widgets" and a checkbox for each, and the right side of the screen will display whichever widgets the user has selected from the navigation bar.
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
+# How to use AWS SDK in a component
 
-### Deployment
+1. Import appStore to your component:
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
+  ```js
+  import appStore from './src/common/app-store.js';
+  ```
 
-### `npm run build` fails to minify
+2. Import the AWS Javascript SDK(s) that you need, such as EC2:
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+  ```js
+  import EC2 from 'aws-sdk/clients/ec2';
+  ```
+
+3. Instatiate your SDK object. It might make sense to do this on component load using React's `useEffect()`, but you can edit as needed. Look at `./src/components/widgets/ec2-describe-instances.js` for an example:
+
+  ```js
+  var credentials = await appStore.Auth.currentCredentials();
+  const ec2 = new EC2({
+    region: region,
+    credentials: appStore.Auth.essentialCredentials(credentials)
+  });
+  ```
+
+4. You can display your widget however you'd like, but if you'd like to use consistent formatting, then you should import the Widget component and wrap your output with it, like so: 
+
+  ```js
+  import Widget from './widget.js';
+
+  const myWidget = view(() => {
+
+    return (
+      <Widget>
+        <h2>EC2 Instances:</h2>
+        <RegionSelector value={region} setFunction={setRegion}/><br/>
+        {renderResponse()}
+      </Widget>
+    );
+  });
+  ```
+  

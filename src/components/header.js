@@ -1,13 +1,16 @@
 import React from 'react';
+import { view } from '@risingstack/react-easy-state';
+import 'cross-fetch/polyfill';
+
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import { view } from '@risingstack/react-easy-state';
-import CognitoConfigController from './cognito-config-controller';
-import CustomSignOut from './custom-sign-out';
-import 'cross-fetch/polyfill';
-import useStyles from './material-ui-styles.js';
-import appStore from './app-store.js';
+
+import appStore from './common/app-store.js';
+import useStyles from './common/material-ui-styles.js';
+import CognitoConfigController from './auth/cognito-config-controller';
+import CustomSignOut from './auth/custom-sign-out';
+
 
 const Header = view(() => {
   

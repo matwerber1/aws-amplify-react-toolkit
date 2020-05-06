@@ -1,11 +1,13 @@
 import React from 'react';
+import { view } from '@risingstack/react-easy-state';
+import 'cross-fetch/polyfill';
+
 import {
   Authenticator,
   Greetings,
   SignOut,
 } from 'aws-amplify-react';
-import { view } from '@risingstack/react-easy-state';
-import 'cross-fetch/polyfill';
+
 
 const CustomAuthenticator = view(({ updateAuthState }) => {
 

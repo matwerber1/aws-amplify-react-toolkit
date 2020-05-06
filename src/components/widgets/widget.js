@@ -1,6 +1,7 @@
 import React from 'react';
 import { view } from '@risingstack/react-easy-state';
 import 'cross-fetch/polyfill';
+
 import Container from '@material-ui/core/Container';
 import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';

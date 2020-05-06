@@ -1,10 +1,11 @@
 import './App.css';
 import React from 'react';
+import { view } from '@risingstack/react-easy-state';
+import CssBaseline from '@material-ui/core/CssBaseline';
+
 import Header from './components/header';
 import Body from './components/body';
-import { view } from '@risingstack/react-easy-state';
-import useStyles from './components/material-ui-styles.js';
-import CssBaseline from '@material-ui/core/CssBaseline';
+import useStyles from './components/common/material-ui-styles.js';
 
 function App() {
 
@@ -13,9 +14,7 @@ function App() {
   return (
     <div className={classes.root}>
       <CssBaseline />
-      {/* reviewing */}
       <Header />
-      {/* not reviewed */}
       <Body />
     </div>
   );

@@ -1,8 +1,10 @@
 import React from 'react';
 import { view } from '@risingstack/react-easy-state';
 import 'cross-fetch/polyfill';
+
 import { Auth } from 'aws-amplify';
-import appStore from './app-store';
+
+import appStore from '../common/app-store';
 import JsonViewer from './json-viewer';
 import Widget from './widget.js';
 

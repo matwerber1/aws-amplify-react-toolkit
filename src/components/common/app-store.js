@@ -1,7 +1,9 @@
-import { store } from '@risingstack/react-easy-state';
-import cookies from './cookies';
 import Amplify, { Auth } from 'aws-amplify';
+import { store } from '@risingstack/react-easy-state';
+
+import cookies from './cookies';
 import { authStates } from './auth-states';
+
 
 const appStore = store({
   // "Auth" is the Cognito Auth object; we have to congfigure it before use, and

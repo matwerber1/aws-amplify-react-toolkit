@@ -1,7 +1,9 @@
 import React from 'react';
-import useStyles from './material-ui-styles.js';
+
 import Box from '@material-ui/core/Box';
 import Container from '@material-ui/core/Container';
+
+import useStyles from './common/material-ui-styles.js';
 
 function Footer() {
 

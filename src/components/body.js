@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { view } from '@risingstack/react-easy-state';
-import AwsCliProxy from './aws-cli-proxy';
+
 import Drawer from '@material-ui/core/Drawer';
-import appStore from './app-store';
-import useStyles from './material-ui-styles.js';
 import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
 import Divider from '@material-ui/core/Divider';
@@ -14,10 +12,13 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Checkbox from '@material-ui/core/Checkbox';
+
 import Footer from './footer.js';
-import CustomAuthenticator from './custom-authenticator';
-import Ec2DescribeInstances from './ec2-describe-instances';
-import UserInfo from './user-info';
+import CustomAuthenticator from './auth/custom-authenticator';
+import appStore from './common/app-store';
+import useStyles from './common/material-ui-styles.js';
+import UserInfo from './widgets/user-info';
+import Ec2DescribeInstances from './widgets/ec2-describe-instances';
 
 const Body = view(() => {
 
@@ -32,7 +33,7 @@ const Body = view(() => {
   );
 });
 
-
+// If user is not signed in, display a login component for Cognito:
 const SignInBody = view(() => {
   const classes = useStyles();
   return (
@@ -43,10 +44,25 @@ const SignInBody = view(() => {
   );
 });
 
+// If user is signed in, display the widget navigation side bar as well as the content of any selected widget(s):
 const SignedInBody = view(() => {
   
   const classes = useStyles();
 
+  // This is the key parameter for UI display.
+  // For any widget that you want displayed in the left navigation, you should
+  // add an item to this array:
+  /*
+    const widgets = [
+      {
+        component: <COMPONENNT>     // the actual react functional component that you want to display
+        displayName: <STRING>       // name of widget that will display in the left app navigation
+        id: <STRING>                // arbitrary ID that we assign to component properties
+        displayOnFirstLoad: <BOOL>  // if true, widget will be displayed by default
+      }
+    ]
+
+  */
   const widgets = [
     {
       component: UserInfo,
@@ -60,12 +76,6 @@ const SignedInBody = view(() => {
       id: 'ec2-instances',
       displayOnFirstLoad: false
     },
-    {
-      component: AwsCliProxy,
-      displayName: 'AWS CLI Proxy',
-      id: 'cli-proxy',
-      displayOnFirstLoad: false
-    }
   ];
 
   // initial state is 0 for everything
@@ -105,6 +115,8 @@ const SignedInBody = view(() => {
   );
 });
 
+
+// This is the left navigation bar: 
 const AppDrawer = view(({widgets, handleToggle, checkboxState}) => {
 
   const classes = useStyles();

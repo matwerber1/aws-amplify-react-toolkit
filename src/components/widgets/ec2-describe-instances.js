@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import EC2 from 'aws-sdk/clients/ec2';
+
+import appStore from '../common/app-store.js';
 import JsonViewer from './json-viewer';
 import RegionSelector from './region-selector';
-import appStore from './app-store.js';
 import Widget from './widget.js';
 
 const Ec2DescribeInstances = () => {
