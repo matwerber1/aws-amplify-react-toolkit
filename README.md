@@ -19,6 +19,37 @@ Because of that, you don't want just anybody to be able to sign up via your Cogn
 5. Go to the Cognito User Pool web console in your AWS account and create a user, then add them to the `admin` user group
 6. Log in locally and enjoy! (?)
 
+## Adding Widgets
+
+This project breaks functionality into "widgets". These are self-contained React components to test/demo different aspects of AWS in the browser. 
+
+To create a widget:
+
+1. Add your React component to `./src/components/widgets`. 
+2. To make your widget appear in the left navigation menu, do the following:
+  
+  1. In `./src/components/body.js`, import your new component:
+
+      ```js
+      import MyNewWidget from './widgets/my-new-widgets';
+      ```
+
+  2. Within `./src/components/body.js`, modify the `const widgets = [{...}]` array:
+
+      The array looks like this:
+
+      ```js
+      const widgets = [
+      {
+        component: UserInfo,
+        displayName: 'Cognito Info',
+        id: 'cognito-info',
+        displayOnFirstLoad: true
+      },
+      ```
+
+      For your new widget, add a new object to the array above. The `component` property should match the name of the component you imported, the `displayName` is whatever value you want shown to the user in the navigation menu, the `id` is an arbitrary, unique ID for the rendered component, and `displayOnFirstLoad` determines whether the widget is shown/activated when a user first logs in. 
+
 ## Current Widgets
 
 **Cognito Info**
