@@ -11,79 +11,90 @@ const events = store({
   message_history_limit: 500,
   message_count: 0,
   messages: '',
-  subscribeTopic: 'iot_event_viewer',
-  publishTopic: 'iot_event_viewer',
-  publishMessage: 'Hello, world!'
+  subscribeTopicInput: 'iot_event_viewer',
+  publishTopicInput: 'iot_event_viewer',
+  publishMessage: 'Hello, world!',
+  isSubscribed: false,
+  subscribedTopic: '',
+  subscription: null
 });
 
 const EventViewer = (props) => {
 
-  const SUBSCRIBE_TOPIC = events.subscribeTopic;
-
-  // In order to use AWS IoT, the Cognito user needs an IoT policy attached.
-  // We check their currently-assigned policies and if the policy is missing,
-  // we attach it:
+  // If needed, attach IoT policy to current user so they can use the pubsub functionality:
   useEffect(() => {
-    Auth.currentCredentials()
-      .then((credentials) => {
-        const iot = new AWS.Iot({
-          region: pubsub_config.iot_region,
-          credentials: Auth.essentialCredentials(credentials)
-        });
-        const target = credentials.identityId;
-        iot.listAttachedPolicies({ target }, (err, data) => {
-          const policyName = pubsub_config.iot_policy;
-          if (!data.policies.find(policy => policy.policyName === policyName)) {
-            iot.attachPolicy({ policyName, target }, () => {
-              console.log('Attaching IoT policy ' + policyName + ' to identity ' + target);
-            });
-          }
-        });
+    async function addIotPolicyToUser() {
+      const credentials = await Auth.currentCredentials();
+      const iot = new AWS.Iot({
+        region: pubsub_config.iot_region,
+        credentials: Auth.essentialCredentials(credentials)
       });
+      const target = credentials.identityId;
+      const {policies} = await iot.listAttachedPolicies({ target }).promise();
+      const policyName = pubsub_config.iot_policy;
+      if (!policies.find(policy => policy.policyName === policyName)) {
+        await iot.attachPolicy({ policyName, target }).promise();
+        console.log('Attached IoT policy ' + policyName + ' to identity ' + target);
+      }
+    }
+    addIotPolicyToUser();
   }, []);
 
-  // In order to use AWS IoT, the Cognito user needs an IoT policy attached.
-  // We check their currently-assigned policies and if the policy is missing,
-  // we attach it:
-  useEffect(() => {    
-    PubSub.subscribe(SUBSCRIBE_TOPIC).subscribe({
-      next: data => {
-        const symbolKey = Reflect.ownKeys(data.value).find(key => key.toString() === 'Symbol(topic)');
-        const publishedTopic = data.value[symbolKey];
-        console.log(`Message received on ${publishedTopic}: ${data.value.msg}`);
-        if (events.message_count >= events.message_history_limit) {
-          events.message_count = 0;
-          events.messages = '';
-        }
-        events.messages += `topic=${publishedTopic}: ${data.value.msg}\n`;
-        events.message_count += 1;
-      },
+  // Handles messages received from AWS IoT subscription:
+  function handleReceivedMessage(data) {
+    const symbolKey = Reflect.ownKeys(data.value).find(key => key.toString() === 'Symbol(topic)');
+    const publishedTopic = data.value[symbolKey];
+    console.log(`Message received on ${publishedTopic}: ${data.value.msg}`);
+    if (events.message_count >= events.message_history_limit) {
+      events.message_count = 0;
+      events.messages = '';
+    }
+    events.messages += `topic=${publishedTopic}: ${data.value.msg}\n`;
+    events.message_count += 1;
+  }
+
+  // Fired when user clicks subscribe button:
+  function subscribeToTopic() {
+    if (events.isSubscribed) {
+      events.subscription.unsubscribe();
+      console.log(`Unsubscribed from ${events.subscribedTopic}`);
+      events.isSubscribed = false;
+      events.subscribedTopic = '';
+    }
+    events.subscription = PubSub.subscribe(events.subscribeTopicInput).subscribe({
+      next: data => handleReceivedMessage(data),
       error: error => console.error(error),
       close: () => console.log('Done'),
     });
-    console.log(`Subscribed to IoT topic ${SUBSCRIBE_TOPIC}.`);
-  }, [SUBSCRIBE_TOPIC]);
+    console.log(`Subscribed to IoT topic ${events.subscribeTopicInput }.`);
+    events.isSubscribed = true;
+    events.subscribedTopic = events.subscribeTopicInput;
+  }
 
+  // Fired when user clicks the publish button:
   function sendMessage() {
-    PubSub.publish(events.publishTopic, { msg: events.publishMessage });
-    console.log(`Published message to ${events.publishTopic}.`);
+    PubSub.publish(events.publishTopicInput, { msg: events.publishMessage });
+    console.log(`Published message to ${events.publishTopicInput}.`);
   }
 
   return (
     <Widget>
       <h2>IoT Message Viewer</h2>
       <TextField
-        id="subscribeTopic"
+        id="subscribeTopicInput"
         label="Subscribed topic"
-        value={events.subscribeTopic}
-        onChange={ev => (events.subscribeTopic = ev.target.value)}
+        value={events.subscribeTopicInput}
+        onChange={ev => (events.subscribeTopicInput = ev.target.value)}
       />
+      <Button id="subscribeToTopic" variant="contained" color="primary" onClick={subscribeToTopic}>
+        Subscribe to topic
+      </Button>
       <br/><br/>
       <TextField
         id="publishTopic"
         label="Topic to publish to"
-        value={events.publishTopic}
-        onChange={ev => (events.publishTopic = ev.target.value)}
+        value={events.publishTopicInput}
+        onChange={ev => (events.publishTopicInput = ev.target.value)}
       />
       <TextField
         id="publishMessage"
@@ -91,9 +102,11 @@ const EventViewer = (props) => {
         value={events.publishMessage}
         onChange={ev => (events.publishMessage = ev.target.value)}
       />
-      <Button variant="contained" color="primary" onClick={sendMessage}>
+      <Button id="publishMessage" variant="contained" color="primary" onClick={sendMessage}>
         Publish message
       </Button>
+      <br /><br />
+      { events.isSubscribed ?  `Currently subscribed to ${events.subscribedTopic}` : "Please subscribe to a topic to view messages"}
       <br/><br/>
       <TextField
         id="eventStream"
