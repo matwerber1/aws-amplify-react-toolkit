@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { view } from '@risingstack/react-easy-state';
+import React, { useState, useEffect, useMemo } from 'react';
 import Drawer from '@material-ui/core/Drawer';
 import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
@@ -17,26 +16,10 @@ import UserInfo from './widgets/user-info';
 import Ec2DescribeInstances from './widgets/ec2-describe-instances';
 import IoTMessageViewer from './widgets/iot-message-viewer';
 import DemoWidget from './widgets/demo-widget';
+import { store, view } from '@risingstack/react-easy-state';
 
-const Body = view(() => {
-  
-  const classes = useStyles();
-
-  // This is the key parameter for UI display.
-  // For any widget that you want displayed in the left navigation, you should
-  // add an item to this array:
-  /*
-    const widgets = [
-      {
-        component: <COMPONENNT>     // the actual react functional component that you want to display
-        displayName: <STRING>       // name of widget that will display in the left app navigation
-        id: <STRING>                // arbitrary ID that we assign to component properties
-        displayOnFirstLoad: <BOOL>  // if true, widget will be displayed by default
-      }
-    ]
-
-  */
-  const widgets = [
+const state = store({
+  widgets: [
     {
       component: UserInfo,
       displayName: 'Cognito Info',
@@ -61,35 +44,37 @@ const Body = view(() => {
       id: 'demo-widget',
       displayOnFirstLoad: false
     },
-  ];
+  ]
+});
 
-  // Checkbox state refers to whether each widget option is checked (aka enabled) on the left navigation panel:
-  const defaultCheckboxStates = widgets.map(({displayOnFirstLoad}) => { return displayOnFirstLoad });
-  const [checkboxState, setCheckboxState] = useState(defaultCheckboxStates);
+// On first load, see if we can find widget's visible status in localStorage
+// (i.e. read in prior preferences), otherwise, default to widget is not visible:
+state.widgets.forEach((widget, index) => {
+  var localKey = `widget-isVisible-${index}`;
+  var localValue = localStorage.getItem(localKey);
+  if (localKey) {
+    state.widgets[index].visible = (localValue === 'true' ? true : false);
+  }
+  else {
+    state.widgets[index].visible = false;
+  }
+});
 
-  // Toggle between checked/unchecked:
-  const handleToggle = (index) => {
-    const newCheckboxState = [...checkboxState];
-    if (newCheckboxState[index] === false) {
-      newCheckboxState[index] = true;
-    }
-    else {
-      newCheckboxState[index] = false;
-    }
-    setCheckboxState(newCheckboxState);
-  };
+
+const Body = view(() => {
+
+  const classes = useStyles();
 
   return (
     <React.Fragment>
   
-      {/* Selections made in this menu control what widgets we show the user */}
-      <WidgetMenu widgets={widgets} handleToggle={handleToggle} checkboxState={checkboxState} />
+      <WidgetMenu />
       
       <main className={classes.content}>
         <Toolbar />
         {/* For each enabled widget, we display it here: */}
-        {widgets.map((widget, index) => {
-          if (checkboxState[index] === true) {
+        {state.widgets.map((widget, index) => {
+          if (widget.visible === true) {
             return React.createElement(widget.component, { key: widget.id });
           }
           else {
@@ -104,7 +89,14 @@ const Body = view(() => {
 });
 
 // This is the left navigation bar: 
-const WidgetMenu = view(({widgets, handleToggle, checkboxState}) => {
+const WidgetMenu = view(({ handleToggle, checkboxState}) => {
+
+  function clickHandler(index) {
+    var newValue = !state.widgets[index].visible
+    state.widgets[index].visible = newValue;
+    var localKey = `widget-isVisible-${index}`;
+    localStorage.setItem(localKey, newValue);
+  }
 
   const classes = useStyles();
   return (
@@ -128,14 +120,14 @@ const WidgetMenu = view(({widgets, handleToggle, checkboxState}) => {
 
         <div className={classes.drawerContainer}>
           <List>
-            {widgets.map((widget, index) => {
+            {state.widgets.map((widget, index) => {
               const labelId = `checkbox-list-label-${widget.id}`;
               return (
-                <ListItem key={widget.id} dense button onClick={() => handleToggle(index)}>
+                <ListItem key={widget.id} dense button onClick={() => clickHandler(index)}>
                 <ListItemIcon>
                     <Checkbox
                       edge="start"
-                      checked={checkboxState[index]}
+                      checked={widget.visible}
                       tabIndex={-1}
                       disableRipple
                       key={`checkbox-${widget.id}`}

@@ -7,12 +7,19 @@ import Widget from './widget.js';
 
 const Ec2DescribeInstances = () => {
 
+  const defaultRegion = localStorage.getItem('ec2viewer-region') || 'us-east-1';
+
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState();
   const [results, setResults] = useState({ Reservations: [] });
-  const [region, setRegion] = useState('us-west-2');
+  const [region, setRegion] = useState(defaultRegion);
 
+  // When the region changes, update localStorage to remember settings:
+  useEffect(() => {
+    localStorage.setItem('ec2viewer-region', region);
+  }, [region]);
+  
   // When component loads, fetch data once:
   useEffect(() => {
     async function fetchData() {
