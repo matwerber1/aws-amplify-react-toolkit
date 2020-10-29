@@ -1,6 +1,5 @@
 import React from 'react';
 import { view } from '@risingstack/react-easy-state';
-
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 

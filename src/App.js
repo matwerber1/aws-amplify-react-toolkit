@@ -1,11 +1,9 @@
 import './App.css';
-import React from 'react';
-import { view } from '@risingstack/react-easy-state';
+import { withAuthenticator } from '@aws-amplify/ui-react';
 import CssBaseline from '@material-ui/core/CssBaseline';
-
+import useStyles from './components/common/material-ui-styles.js';
 import Header from './components/header';
 import Body from './components/body';
-import useStyles from './components/common/material-ui-styles.js';
 
 function App() {
 
@@ -20,4 +18,4 @@ function App() {
   );
 }
 
-export default view(App);
+export default withAuthenticator(App);

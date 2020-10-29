@@ -1,21 +1,16 @@
 import React from 'react';
-
 import Box from '@material-ui/core/Box';
 import Container from '@material-ui/core/Container';
-
 import useStyles from './common/material-ui-styles.js';
 
 function Footer() {
 
   const classes = useStyles();
 
-
   return (
     <Container className={classes.footer}>
        <Box>
-          These works are solely my own and not those of my employer.
-          <br />
-          Copyright © Mat Werber
+          this is a footer
       </Box>
     </Container>
    

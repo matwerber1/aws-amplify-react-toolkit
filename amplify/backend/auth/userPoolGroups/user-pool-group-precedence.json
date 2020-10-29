@@ -1,0 +1,24 @@
+[
+  {
+    "groupName": "admin",
+    "precedence": 1,
+    "customPolicies": [{
+      "PolicyName": "admin-group-policy",
+        "PolicyDocument": {
+        "Version":"2012-10-17",
+        "Statement":[
+            {
+              "Sid":"statement1",
+              "Effect":"Allow",
+              "Action":[
+                  "*"
+              ],
+              "Resource":[
+                  "*"
+              ]
+            }
+         ]
+         }
+    }]
+  }
+]

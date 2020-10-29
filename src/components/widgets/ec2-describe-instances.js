@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import EC2 from 'aws-sdk/clients/ec2';
-
-import appStore from '../common/app-store.js';
+import {Auth} from "aws-amplify";
 import JsonViewer from './json-viewer';
 import RegionSelector from './region-selector';
 import Widget from './widget.js';
@@ -12,17 +11,17 @@ const Ec2DescribeInstances = () => {
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState();
   const [results, setResults] = useState({ Reservations: [] });
-  const [region, setRegion] = useState('us-east-2');
+  const [region, setRegion] = useState('us-west-2');
 
   // When component loads, fetch data once:
   useEffect(() => {
     async function fetchData() {
       try {
         setIsLoading(true);
-        var credentials = await appStore.Auth.currentCredentials();
+        var credentials = await Auth.currentCredentials();
         const ec2 = new EC2({
           region: region,
-          credentials: appStore.Auth.essentialCredentials(credentials)
+          credentials: Auth.essentialCredentials(credentials)
         });
         var reservations = [];
         var params = {};
@@ -45,7 +44,7 @@ const Ec2DescribeInstances = () => {
     }
     fetchData();
   }, [region]);
-
+  
   function renderResponse() {
     if (isError) {
       return errorMessage;

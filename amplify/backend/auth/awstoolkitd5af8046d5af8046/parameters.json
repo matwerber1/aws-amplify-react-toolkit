@@ -1,0 +1,63 @@
+{
+    "identityPoolName": "awstoolkitd5af8046_identitypool_d5af8046",
+    "allowUnauthenticatedIdentities": false,
+    "resourceNameTruncated": "awstood5af8046",
+    "userPoolName": "awstoolkitd5af8046_userpool_d5af8046",
+    "autoVerifiedAttributes": [
+        "email"
+    ],
+    "mfaConfiguration": "OPTIONAL",
+    "mfaTypes": [
+        "SMS Text Message"
+    ],
+    "smsAuthenticationMessage": "Your authentication code is {####}",
+    "smsVerificationMessage": "Your verification code is {####}",
+    "emailVerificationSubject": "Your verification code",
+    "emailVerificationMessage": "Your verification code is {####}",
+    "defaultPasswordPolicy": false,
+    "passwordPolicyMinLength": 8,
+    "passwordPolicyCharacters": [],
+    "requiredAttributes": [
+        "email"
+    ],
+    "userpoolClientGenerateSecret": true,
+    "userpoolClientRefreshTokenValidity": 30,
+    "userpoolClientWriteAttributes": [
+        "email"
+    ],
+    "userpoolClientReadAttributes": [
+        "email"
+    ],
+    "userpoolClientLambdaRole": "awstood5af8046_userpoolclient_lambda_role",
+    "userpoolClientSetAttributes": false,
+    "sharedId": "d5af8046",
+    "resourceName": "awstoolkitd5af8046d5af8046",
+    "authSelections": "identityPoolAndUserPool",
+    "authRoleArn": {
+        "Fn::GetAtt": [
+            "AuthRole",
+            "Arn"
+        ]
+    },
+    "unauthRoleArn": {
+        "Fn::GetAtt": [
+            "UnauthRole",
+            "Arn"
+        ]
+    },
+    "useDefault": "manual",
+    "thirdPartyAuth": false,
+    "userPoolGroups": true,
+    "adminQueries": false,
+    "triggers": "{}",
+    "hostedUI": false,
+    "userPoolGroupList": [
+        "admin"
+    ],
+    "serviceName": "Cognito",
+    "parentStack": {
+        "Ref": "AWS::StackId"
+    },
+    "permissions": [],
+    "dependsOn": []
+}

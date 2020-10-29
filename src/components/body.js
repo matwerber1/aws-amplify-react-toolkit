@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { view } from '@risingstack/react-easy-state';
-
 import Drawer from '@material-ui/core/Drawer';
 import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
@@ -12,40 +11,13 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Checkbox from '@material-ui/core/Checkbox';
-
 import Footer from './footer.js';
-import CustomAuthenticator from './auth/custom-authenticator';
-import appStore from './common/app-store';
 import useStyles from './common/material-ui-styles.js';
 import UserInfo from './widgets/user-info';
 import Ec2DescribeInstances from './widgets/ec2-describe-instances';
+import IoTMessageViewer from './widgets/iot-message-viewer';
 
 const Body = view(() => {
-
-  console.log(`authState = ${appStore.cognito.authState}`);
-
-  const loggedIn = (appStore.cognito.loggedIn);
-
-  return (
-    <React.Fragment>
-      {loggedIn ? <SignedInBody/> : <SignInBody/>}
-    </React.Fragment>
-  );
-});
-
-// If user is not signed in, display a login component for Cognito:
-const SignInBody = view(() => {
-  const classes = useStyles();
-  return (
-    <main className={classes.content}>
-      <CustomAuthenticator displayType='login' updateAuthState={appStore.cognito.updateAuthState} />
-      <Footer/>
-    </main>
-  );
-});
-
-// If user is signed in, display the widget navigation side bar as well as the content of any selected widget(s):
-const SignedInBody = view(() => {
   
   const classes = useStyles();
 
@@ -76,14 +48,20 @@ const SignedInBody = view(() => {
       id: 'ec2-instances',
       displayOnFirstLoad: false
     },
+    {
+      component: IoTMessageViewer,
+      displayName: 'IoT Message Viewer',
+      id: 'iot-message-viewer',
+      displayOnFirstLoad: false
+    },
   ];
 
-  // initial state is 0 for everything
+  // Checkbox state refers to whether each widget option is checked (aka enabled) on the left navigation panel:
   const defaultCheckboxStates = widgets.map(({displayOnFirstLoad}) => { return displayOnFirstLoad });
   const [checkboxState, setCheckboxState] = useState(defaultCheckboxStates);
 
+  // Toggle between checked/unchecked:
   const handleToggle = (index) => {
-    console.log('handle toggle is: ', index);
     const newCheckboxState = [...checkboxState];
     if (newCheckboxState[index] === false) {
       newCheckboxState[index] = true;
@@ -96,10 +74,13 @@ const SignedInBody = view(() => {
 
   return (
     <React.Fragment>
-      <AppDrawer widgets={widgets} handleToggle={handleToggle} checkboxState={checkboxState} />
+  
+      {/* Selections made in this menu control what widgets we show the user */}
+      <WidgetMenu widgets={widgets} handleToggle={handleToggle} checkboxState={checkboxState} />
+      
       <main className={classes.content}>
         <Toolbar />
-        {/* ------- This is where you put the body after user is authenticated ---------*/}
+        {/* For each enabled widget, we display it here: */}
         {widgets.map((widget, index) => {
           if (checkboxState[index] === true) {
             return React.createElement(widget.component, { key: widget.id });
@@ -108,16 +89,15 @@ const SignedInBody = view(() => {
             return null;
           }
         })}
-        {/* ----------------------------------------------------------------------------*/}
         <Footer/>
       </main>
     </React.Fragment>
   );
+
 });
 
-
 // This is the left navigation bar: 
-const AppDrawer = view(({widgets, handleToggle, checkboxState}) => {
+const WidgetMenu = view(({widgets, handleToggle, checkboxState}) => {
 
   const classes = useStyles();
   return (
@@ -165,6 +145,7 @@ const AppDrawer = view(({widgets, handleToggle, checkboxState}) => {
       </Drawer>
     </React.Fragment>
   );
+  
 });
 
 export default Body; 

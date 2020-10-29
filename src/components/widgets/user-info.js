@@ -1,24 +1,23 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { view } from '@risingstack/react-easy-state';
 import 'cross-fetch/polyfill';
-
 import { Auth } from 'aws-amplify';
-
-import appStore from '../common/app-store';
 import JsonViewer from './json-viewer';
 import Widget from './widget.js';
 
 const UserInfo = view(() => {
 
+  const [credentials, setCredentials] = useState();
+
   Auth.currentCredentials()
-    .then(credentials => {
-      appStore.cognito.currentCredentials = credentials;
+    .then(data => {
+      setCredentials(data);
     });
 
   return (
     <Widget>
       <h2>Authentication Info</h2>
-      <JsonViewer jsonObject={appStore.cognito.currentCredentials} />
+      <JsonViewer jsonObject={credentials} />
     </Widget>
   );
 });
