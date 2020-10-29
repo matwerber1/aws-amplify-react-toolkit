@@ -11,12 +11,22 @@ const state = store({
   message_history_limit: 200,
   message_count: 0,
   messages: [],
-  subscribeTopicInput: 'iot_event_viewer',
-  publishTopicInput: 'iot_event_viewer',
-  publishMessage: 'Hello, world!',
+  subscribeTopicInput: localStorage.getItem('iotviewer-subscribeTopicInput') || 'iot_event_viewer',
+  publishTopicInput: localStorage.getItem('iotviewer-publishTopicInput') || 'iot_event_viewer',
+  publishMessage: localStorage.getItem('iotviewer-publishMessage') || 'Hello, world!',
   isSubscribed: false,
   subscribedTopic: '',
-  subscription: null
+  subscription: null,
+  // Call this function to save last-subscribed info to localStorage (aka save preferences):
+  setSubscribedTopicInput: function(topicInput) {
+    this.subscribedTopic = topicInput;
+    localStorage.setItem('iotviewer-subscribeTopicInput', topicInput);
+  },
+  // Call this function to save last-published info to localStorage (aka save preferences):
+  savePublishTopicAndMessage: function () {
+    localStorage.setItem('iotviewer-publishTopicInput', this.publishTopicInput);
+    localStorage.setItem('iotviewer-publishMessage', this.publishMessage);
+  }
 });
 
 const EventViewer = (props) => {
@@ -42,24 +52,6 @@ const EventViewer = (props) => {
         }
       });
     });
-    
-    /*
-    async function addIotPolicyToUser() {
-      const credentials = await Auth.currentCredentials();
-      const iot = new AWS.Iot({
-        region: pubsub_config.iot_region,
-        credentials: Auth.essentialCredentials(credentials)
-      });
-      const target = credentials.identityId;
-      const {policies} = await iot.listAttachedPolicies({ target }).promise();
-      const policyName = pubsub_config.iot_policy;
-      if (!policies.find(policy => policy.policyName === policyName)) {
-        await iot.attachPolicy({ policyName, target }).promise();
-        console.log('Attached IoT policy ' + policyName + ' to identity ' + target);
-      }
-    }
-    addIotPolicyToUser();
-    */
   }, []);
 
   // Handles messages received from AWS IoT subscription:
@@ -95,13 +87,14 @@ const EventViewer = (props) => {
     });
     console.log(`Subscribed to IoT topic ${state.subscribeTopicInput }.`);
     state.isSubscribed = true;
-    state.subscribedTopic = state.subscribeTopicInput;
+    state.setSubscribedTopicInput(state.subscribeTopicInput);
   }
 
   // Fired when user clicks the publish button:
   function sendMessage() {
     PubSub.publish(state.publishTopicInput, { msg: state.publishMessage });
     console.log(`Published message to ${state.publishTopicInput}.`);
+    state.savePublishTopicAndMessage();
   }
 
   return (
@@ -134,9 +127,9 @@ const EventViewer = (props) => {
       </Button>
       <br /><br />
       { state.isSubscribed ?
-        <text style={{ color: 'green' }}>Currently subscribed to {state.subscribedTopic}</text>
+        <div style={{ color: 'green' }}>Currently subscribed to {state.subscribedTopic}</div>
         :
-        <text style={{ color: 'red' }}>Subscribe to a topic to view messages</text>
+        <div style={{ color: 'red' }}>Subscribe to a topic to view messages</div>
       }
       <br /><br />
       {state.isSubscribed ?
