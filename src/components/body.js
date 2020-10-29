@@ -16,6 +16,7 @@ import useStyles from './common/material-ui-styles.js';
 import UserInfo from './widgets/user-info';
 import Ec2DescribeInstances from './widgets/ec2-describe-instances';
 import IoTMessageViewer from './widgets/iot-message-viewer';
+import DemoWidget from './widgets/demo-widget';
 
 const Body = view(() => {
   
@@ -52,6 +53,12 @@ const Body = view(() => {
       component: IoTMessageViewer,
       displayName: 'IoT Message Viewer',
       id: 'iot-message-viewer',
+      displayOnFirstLoad: false
+    },
+    {
+      component: DemoWidget,
+      displayName: 'Demo Widget',
+      id: 'demo-widget',
       displayOnFirstLoad: false
     },
   ];

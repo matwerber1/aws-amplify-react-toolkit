@@ -7,10 +7,10 @@ import AWS from 'aws-sdk';
 import pubsub_config from '../../pubsub-config';
 import { Auth, PubSub } from 'aws-amplify';
 
-const events = store({
-  message_history_limit: 500,
+const state = store({
+  message_history_limit: 200,
   message_count: 0,
-  messages: '',
+  messages: [],
   subscribeTopicInput: 'iot_event_viewer',
   publishTopicInput: 'iot_event_viewer',
   publishMessage: 'Hello, world!',
@@ -23,6 +23,27 @@ const EventViewer = (props) => {
 
   // If needed, attach IoT policy to current user so they can use the pubsub functionality:
   useEffect(() => {
+    const REGION = pubsub_config.iot_region;
+    const policyName = pubsub_config.iot_policy;
+    
+    Auth.currentCredentials().then(credentials => {
+      const iot = new AWS.Iot({
+        region: REGION,
+        credentials: Auth.essentialCredentials(credentials)
+      });
+      const target = credentials.identityId;
+      iot.listAttachedPolicies({ target }, (err, data) => {
+        if (err) console.log(err, err.stack);
+        if (!data.policies.find(policy => policy.policyName === policyName)) {
+          iot.attachPolicy({ policyName, target }, (err, data) => {
+            if (err) console.log(`Error attaching IoT policy ${policyName} to Cognito identity ${target}: ${err}`, err.stack);
+            else console.log(`Attached IoT policy ${policyName} to identity ${target}.`);
+          });
+        }
+      });
+    });
+    
+    /*
     async function addIotPolicyToUser() {
       const credentials = await Auth.currentCredentials();
       const iot = new AWS.Iot({
@@ -38,6 +59,7 @@ const EventViewer = (props) => {
       }
     }
     addIotPolicyToUser();
+    */
   }, []);
 
   // Handles messages received from AWS IoT subscription:
@@ -45,36 +67,41 @@ const EventViewer = (props) => {
     const symbolKey = Reflect.ownKeys(data.value).find(key => key.toString() === 'Symbol(topic)');
     const publishedTopic = data.value[symbolKey];
     console.log(`Message received on ${publishedTopic}: ${data.value.msg}`);
-    if (events.message_count >= events.message_history_limit) {
-      events.message_count = 0;
-      events.messages = '';
+    if (state.message_count >= state.message_history_limit) {
+      state.messages.shift();
     }
-    events.messages += `topic=${publishedTopic}: ${data.value.msg}\n`;
-    events.message_count += 1;
+    else {
+      // Only increment our counter if message count less than allowed total history. 
+      // Once message count is equal to / greater than message history, we start removing the first (oldest) item to make room for the newer item
+      state.message_count += 1;
+    }
+    const timestamp = new Date().toISOString();
+    state.messages.push(`${timestamp} - topic=${publishedTopic}: ${data.value.msg}\n`);
+    
   }
 
   // Fired when user clicks subscribe button:
   function subscribeToTopic() {
-    if (events.isSubscribed) {
-      events.subscription.unsubscribe();
-      console.log(`Unsubscribed from ${events.subscribedTopic}`);
-      events.isSubscribed = false;
-      events.subscribedTopic = '';
+    if (state.isSubscribed) {
+      state.subscription.unsubscribe();
+      console.log(`Unsubscribed from ${state.subscribedTopic}`);
+      state.isSubscribed = false;
+      state.subscribedTopic = '';
     }
-    events.subscription = PubSub.subscribe(events.subscribeTopicInput).subscribe({
+    state.subscription = PubSub.subscribe(state.subscribeTopicInput).subscribe({
       next: data => handleReceivedMessage(data),
       error: error => console.error(error),
       close: () => console.log('Done'),
     });
-    console.log(`Subscribed to IoT topic ${events.subscribeTopicInput }.`);
-    events.isSubscribed = true;
-    events.subscribedTopic = events.subscribeTopicInput;
+    console.log(`Subscribed to IoT topic ${state.subscribeTopicInput }.`);
+    state.isSubscribed = true;
+    state.subscribedTopic = state.subscribeTopicInput;
   }
 
   // Fired when user clicks the publish button:
   function sendMessage() {
-    PubSub.publish(events.publishTopicInput, { msg: events.publishMessage });
-    console.log(`Published message to ${events.publishTopicInput}.`);
+    PubSub.publish(state.publishTopicInput, { msg: state.publishMessage });
+    console.log(`Published message to ${state.publishTopicInput}.`);
   }
 
   return (
@@ -83,8 +110,8 @@ const EventViewer = (props) => {
       <TextField
         id="subscribeTopicInput"
         label="Subscribed topic"
-        value={events.subscribeTopicInput}
-        onChange={ev => (events.subscribeTopicInput = ev.target.value)}
+        value={state.subscribeTopicInput}
+        onChange={ev => (state.subscribeTopicInput = ev.target.value)}
       />
       <Button id="subscribeToTopic" variant="contained" color="primary" onClick={subscribeToTopic}>
         Subscribe to topic
@@ -93,32 +120,40 @@ const EventViewer = (props) => {
       <TextField
         id="publishTopic"
         label="Topic to publish to"
-        value={events.publishTopicInput}
-        onChange={ev => (events.publishTopicInput = ev.target.value)}
+        value={state.publishTopicInput}
+        onChange={ev => (state.publishTopicInput = ev.target.value)}
       />
       <TextField
         id="publishMessage"
         label="Message to publish"
-        value={events.publishMessage}
-        onChange={ev => (events.publishMessage = ev.target.value)}
+        value={state.publishMessage}
+        onChange={ev => (state.publishMessage = ev.target.value)}
       />
       <Button id="publishMessage" variant="contained" color="primary" onClick={sendMessage}>
         Publish message
       </Button>
       <br /><br />
-      { events.isSubscribed ?  `Currently subscribed to ${events.subscribedTopic}` : "Please subscribe to a topic to view messages"}
-      <br/><br/>
-      <TextField
-        id="eventStream"
-        label="IoT messages received"
-        value={events.messages}
-        fullWidth={true}
-        multiline={true}
-        rowsMax={10}
-        size='small'
-        disabled={true}
-        variant="outlined"
-      />
+      { state.isSubscribed ?
+        <text style={{ color: 'green' }}>Currently subscribed to {state.subscribedTopic}</text>
+        :
+        <text style={{ color: 'red' }}>Subscribe to a topic to view messages</text>
+      }
+      <br /><br />
+      {state.isSubscribed ?
+          <TextField
+          id="eventStream"
+          label="received messages"
+          value={state.messages.join('')}
+          fullWidth={true}
+          multiline={true}
+          rowsMax={10}
+          size='small'
+          disabled={true}
+          variant="outlined"
+          />
+        :
+          null}
+      
     </Widget>
   );
 };
