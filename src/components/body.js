@@ -16,6 +16,7 @@ import UserInfo from './widgets/user-info';
 import Ec2DescribeInstances from './widgets/ec2-describe-instances';
 import IoTMessageViewer from './widgets/iot-message-viewer';
 import DemoWidget from './widgets/demo-widget';
+import KinesisWebRTC from './widgets/kinesis-webrtc';
 import { store, view } from '@risingstack/react-easy-state';
 
 const state = store({
@@ -24,25 +25,26 @@ const state = store({
       component: UserInfo,
       displayName: 'Cognito Info',
       id: 'cognito-info',
-      displayOnFirstLoad: true
     },
     {
       component: Ec2DescribeInstances,
       displayName: 'EC2 Instances',
       id: 'ec2-instances',
-      displayOnFirstLoad: false
     },
     {
       component: IoTMessageViewer,
       displayName: 'IoT Message Viewer',
       id: 'iot-message-viewer',
-      displayOnFirstLoad: false
+    },
+    {
+      component: KinesisWebRTC,
+      displayName: 'Kinesis WebRTC',
+      id: 'kinesis-webrtc',
     },
     {
       component: DemoWidget,
       displayName: 'Demo Widget',
       id: 'demo-widget',
-      displayOnFirstLoad: false
     },
   ]
 });
