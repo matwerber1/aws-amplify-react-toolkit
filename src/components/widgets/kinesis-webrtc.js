@@ -14,7 +14,6 @@ import TextField from '@material-ui/core/TextField';
 import useStyles from '../common/material-ui-styles';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import { toStatement } from '@babel/types';
 
 
 // Used to determine / validate options in form components:
@@ -36,7 +35,6 @@ const OPTIONS = {
 
 // Stores state across components (react-easy-state is super easy to use!)
 const state = store({
-  KinesisVideo: null,
   region: 'us-west-2',
   role: OPTIONS.ROLE.MASTER,
   channelName: 'ScaryTestChannel',
@@ -48,10 +46,10 @@ const state = store({
   resolution: OPTIONS.RESOLUTION.WIDESCREEN,
   natTraversal: OPTIONS.TRAVERSAL.STUN_TURN,
   useTrickleICE: false,
+
   localStream: null,
   localView: null,
   remoteView: null,
-  signalingClient: null,
   peerConnectionByClientId: [],
   peerConnectionStatsInterval: null,
   dataChannel: null
@@ -114,11 +112,11 @@ async function startPlayer() {
 //------------------------------------------------------------------------------
 // Start Player in Master mode
 async function startPlayerForMaster() {
-  console.log('Getting creds...');
+
   var credentials = await Auth.currentCredentials();
   
   // Create KVS client
-  console.log('Created KVS client...');
+  console.log('Creating KVS client...');
   const kinesisVideoClient = new KinesisVideo({
     region: state.region,
     credentials: Auth.essentialCredentials(credentials),
@@ -157,7 +155,7 @@ async function startPlayerForMaster() {
 
   // Create Signaling Client
   console.log(`Creating signaling client...`);
-  state.signalingClient = new SignalingClient({
+  const signalingClient = new SignalingClient({
     channelARN,
     channelEndpoint: endpointsByProtocol.WSS,
     credentials: Auth.essentialCredentials(credentials),
@@ -228,12 +226,12 @@ async function startPlayerForMaster() {
   }
 
   console.log('Adding signalingClient.on open handler...');
-  state.signalingClient.on('open', async () => {
+  signalingClient.on('open', async () => {
     console.log('[MASTER] Connected to signaling service');
   });
 
   console.log('Adding signalingClient.on sdpOffer handler...');
-  state.signalingClient.on('sdpOffer', async (offer, remoteClientId) => {
+  signalingClient.on('sdpOffer', async (offer, remoteClientId) => {
     console.log('[MASTER] Received SDP offer from client: ' + remoteClientId);
 
     // Create a new peer connection using the offer from the given client
@@ -260,7 +258,7 @@ async function startPlayerForMaster() {
         // When trickle ICE is enabled, send the ICE candidates as they are generated.
         if (state.useTrickleICE) {
           console.log('[MASTER] Sending ICE candidate to client: ' + remoteClientId);
-          state.signalingClient.sendIceCandidate(candidate, remoteClientId);
+          signalingClient.sendIceCandidate(candidate, remoteClientId);
         }
       } else {
         console.log('[MASTER] All ICE candidates have been generated for client: ' + remoteClientId);
@@ -268,7 +266,7 @@ async function startPlayerForMaster() {
         // When trickle ICE is disabled, send the answer now that all the ICE candidates have ben generated.
         if (!state.useTrickleICE) {
           console.log('[MASTER] Sending SDP answer to client: ' + remoteClientId);
-          state.signalingClient.sendSdpAnswer(peerConnection.localDescription, remoteClientId);
+          signalingClient.sendSdpAnswer(peerConnection.localDescription, remoteClientId);
         }
       }
     });
@@ -304,13 +302,13 @@ async function startPlayerForMaster() {
     // When trickle ICE is enabled, send the answer now and then send ICE candidates as they are generated. Otherwise wait on the ICE candidates.
     if (state.useTrickleICE) {
       console.log('[MASTER] Sending SDP answer to client: ' + remoteClientId);
-      state.signalingClient.sendSdpAnswer(peerConnection.localDescription, remoteClientId);
+      signalingClient.sendSdpAnswer(peerConnection.localDescription, remoteClientId);
     }
     console.log('[MASTER] Generating ICE candidates for client: ' + remoteClientId);
 
   });
 
-  state.signalingClient.on('iceCandidate', async (candidate, remoteClientId) => {
+  signalingClient.on('iceCandidate', async (candidate, remoteClientId) => {
     console.log('[MASTER] Received ICE candidate from client: ' + remoteClientId);
 
     // Add the ICE candidate received from the client to the peer connection
@@ -318,24 +316,23 @@ async function startPlayerForMaster() {
     peerConnection.addIceCandidate(candidate);
   });
 
-  state.signalingClient.on('close', () => {
+  signalingClient.on('close', () => {
       console.log('[MASTER] Disconnected from signaling channel');
   });
 
-  state.signalingClient.on('error', () => {
+  signalingClient.on('error', () => {
       console.error('[MASTER] Signaling client error');
   });
 
   console.log('[MASTER] Starting master connection');
-  state.signalingClient.open();    
-
+  signalingClient.open();    
 
 }
   
   //------------------------------------------------------------------------------
 // Start Player in Viewer mode
 async function startPlayerForViewer() {
-  console.log('Getting creds...');
+
   var credentials = await Auth.currentCredentials();
   
   // Create KVS client
@@ -378,7 +375,7 @@ async function startPlayerForViewer() {
 
   // Create Signaling Client
   console.log(`Creating signaling client...`);
-  state.signalingClient = new SignalingClient({
+  const signalingClient = new SignalingClient({
     channelARN,
     channelEndpoint: endpointsByProtocol.WSS,
     credentials: Auth.essentialCredentials(credentials),
@@ -446,7 +443,7 @@ async function startPlayerForViewer() {
 
   /// REVIEW BELOW HERE
 
-  state.signalingClient.on('open', async () => {
+  signalingClient.on('open', async () => {
     console.log('[VIEWER] Connected to signaling service');
 
     // Get a stream from the webcam, add it to the peer connection, and display it in the local view.
@@ -475,28 +472,28 @@ async function startPlayerForViewer() {
     // When trickle ICE is enabled, send the offer now and then send ICE candidates as they are generated. Otherwise wait on the ICE candidates.
     if (state.useTrickleICE) {
         console.log('[VIEWER] Sending SDP offer');
-        state.signalingClient.sendSdpOffer(state.peerConnection.localDescription);
+        signalingClient.sendSdpOffer(state.peerConnection.localDescription);
     }
     console.log('[VIEWER] Generating ICE candidates');
 });
 
-state.signalingClient.on('sdpAnswer', async answer => {
+signalingClient.on('sdpAnswer', async answer => {
     // Add the SDP answer to the peer connection
     console.log('[VIEWER] Received SDP answer');
     await state.peerConnection.setRemoteDescription(answer);
 });
 
-state.signalingClient.on('iceCandidate', candidate => {
+signalingClient.on('iceCandidate', candidate => {
     // Add the ICE candidate received from the MASTER to the peer connection
     console.log('[VIEWER] Received ICE candidate');
     state.peerConnection.addIceCandidate(candidate);
 });
 
-state.signalingClient.on('close', () => {
+signalingClient.on('close', () => {
     console.log('[VIEWER] Disconnected from signaling channel');
 });
 
-state.signalingClient.on('error', error => {
+signalingClient.on('error', error => {
     console.error('[VIEWER] Signaling client error: ', error);
 });
 
@@ -508,7 +505,7 @@ state.peerConnection.addEventListener('icecandidate', ({ candidate }) => {
         // When trickle ICE is enabled, send the ICE candidates as they are generated.
         if (state.useTrickleICE) {
             console.log('[VIEWER] Sending ICE candidate');
-            state.signalingClient.sendIceCandidate(candidate);
+            signalingClient.sendIceCandidate(candidate);
         }
     } else {
         console.log('[VIEWER] All ICE candidates have been generated');
@@ -516,7 +513,7 @@ state.peerConnection.addEventListener('icecandidate', ({ candidate }) => {
         // When trickle ICE is disabled, send the offer now that all the ICE candidates have ben generated.
         if (!state.useTrickleICE) {
             console.log('[VIEWER] Sending SDP offer');
-            state.signalingClient.sendSdpOffer(state.peerConnection.localDescription);
+            signalingClient.sendSdpOffer(state.peerConnection.localDescription);
         }
     }
 });
@@ -532,7 +529,7 @@ state.peerConnection.addEventListener('track', event => {
 });
 
 console.log('[VIEWER] Starting viewer connection');
-state.signalingClient.open();
+signalingClient.open();
   
 }
 
