@@ -12,12 +12,39 @@ Because of that, you don't want just anybody to be able to sign up via your Cogn
 
 ## Deployment
 
-1. Install the AWS Amplify CLI
-2. Clone this repository
-3. From the repository root, run `amplify init`, followed by `amplify push`
-4. Run the web app locally via `npm run start`
-5. Go to the Cognito User Pool web console in your AWS account and create a user, then add them to the `admin` user group
-6. Log in locally and enjoy! (?)
+1. Install the AWS Amplify CLI: 
+  
+    `npm install -g @aws-amplify/cli`
+
+1. Clone this repository:
+
+    `git clone https://github.com/matwerber1/aws-amplify-react-toolkit`
+
+1. Configure amplify:
+
+    `amplify configure`
+
+    In order for Amplify to create resources in your AWS account, you need to provide Amplify with AWS credentials, aka an IAM user or role's access key, secret key, and - if you're assuming a temporary role, a session token).
+    
+    If you have previously installed and configured [the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html), this will save your access credentials as a "profile" in `~/.aws/credentials`. When prompted by `amplify configure` whether you want to use an existing profile, you can say "yes" and choose one of your previously created profiles.
+
+    If you answer "no", Amplify will open prompt you to create a new IAM user and save the credentials locally so that the Amplify has CLI permission to create resources on your behalf.
+
+1. From the repository root, run:
+  
+    `amplify init`
+    
+    This will create the "barebones" resources for your Amplify project.
+
+1.  Create additional resources defined in the project, such as a Cognito user pool, by running:
+
+    `amplify push`
+
+1. Run the web app locally via `npm run start`
+
+1. Go to the Cognito User Pool web console in your AWS account and create a user, then add them to the `admin` user group
+
+1. Log in locally and enjoy! (?)
 
 ## Adding Widgets
 
