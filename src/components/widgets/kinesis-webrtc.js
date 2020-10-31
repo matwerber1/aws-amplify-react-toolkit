@@ -35,6 +35,7 @@ const OPTIONS = {
 
 // Stores state across components (react-easy-state is super easy to use!)
 const state = store({
+  // These are config params set by the user:
   region: 'us-west-2',
   role: OPTIONS.ROLE.MASTER,
   channelName: 'ScaryTestChannel',
@@ -46,18 +47,26 @@ const state = store({
   resolution: OPTIONS.RESOLUTION.WIDESCREEN,
   natTraversal: OPTIONS.TRAVERSAL.STUN_TURN,
   useTrickleICE: false,
+  messageToSend: '',
+  playerIsStarted: false,
 
+  // These are set when user starts video:
+  signalingClient: null,
   localStream: null,
   localView: null,
   remoteView: null,
-  peerConnectionByClientId: [],
+  dataChannel: null,
   peerConnectionStatsInterval: null,
-  dataChannel: null
+  peerConnectionByClientId: {},
+  dataChannelByClientId: [],  // When master sends a message, we need an array of all connected viewers so we know who to send it to
+
+  receivedMessages: '',     // value of any remote messages received on the data channel
+
 });
 
 //------------------------------------------------------------------------------
 // Main component entry point:
-const KinesisWebRTC = () => {
+const KinesisWebRTC = view(() => {
 
   // In order to modify properties of our <video> components, we need a reference
   // to them in the DOM; first, we declare set them up with the useRef hook. 
@@ -88,17 +97,19 @@ const KinesisWebRTC = () => {
       <h2>Kinesis WebRTC</h2>
       <ConfigurationForm/>
       <br /><br />
-      <VideoPlayers/>
+      {state.playerIsStarted ? <VideoPlayers /> : null }
     </Widget>
   );
   
-};
+});
 
 
 //------------------------------------------------------------------------------
 // Fired when user clicks start player button; will esablish connection to KVS,
 // start streaming video from client and showing video back from other side:
-async function startPlayer() {
+function startPlayer() {
+
+  state.playerIsStarted = true;
 
   console.log(`role is '${state.role}'`)
   if (state.role === OPTIONS.ROLE.MASTER) {
@@ -106,6 +117,102 @@ async function startPlayer() {
   }
   else {
     startPlayerForViewer();
+  }
+}
+
+//------------------------------------------------------------------------------
+function stopPlayer() {
+
+  state.playerIsStarted = false;
+
+  console.log(`role is '${state.role}'`)
+  if (state.role === OPTIONS.ROLE.MASTER) {
+    stopPlayerForMaster();
+  }
+  else {
+    stopPlayerForViewer();
+  }
+}
+
+function stopPlayerForMaster() {
+
+  console.log('[MASTER] Stopping master connection');
+  if (state.signalingClient) {
+      state.signalingClient.close();
+      state.signalingClient = null;
+  }
+
+  Object.keys(state.peerConnectionByClientId).forEach(clientId => {
+      state.peerConnectionByClientId[clientId].close();
+  });
+  state.peerConnectionByClientId = [];
+
+  if (state.localStream) {
+      state.localStream.getTracks().forEach(track => track.stop());
+      state.localStream = null;
+  }
+
+  // These two lines are in the AWS demo project, but I don't see anywhere where we actually populate remoteStreams...
+  // https://github.com/awslabs/amazon-kinesis-video-streams-webrtc-sdk-js/issues/104
+  //master.remoteStreams.forEach(remoteStream => remoteStream.getTracks().forEach(track => track.stop()));
+  //master.remoteStreams = [];
+
+  if (state.peerConnectionStatsInterval) {
+      clearInterval(state.peerConnectionStatsInterval);
+      state.peerConnectionStatsInterval = null;
+  }
+
+  if (state.localView) {
+      state.localView.current.srcObject = null;
+  }
+
+  if (state.remoteView) {
+      state.remoteView.current.srcObject = null;
+  }
+
+  if (state.dataChannelByClientId) {
+      state.dataChannelByClientId = {};
+  }
+}
+
+function stopPlayerForViewer() {
+
+  console.log('[VIEWER] Stopping viewer connection');
+  if (state.signalingClient) {
+    state.signalingClient.close();
+    state.signalingClient = null;
+  }
+
+  if (state.peerConnection) {
+    state.peerConnection.close();
+    state.peerConnection = null;
+  }
+
+  if (state.localStream) {
+    state.localStream.getTracks().forEach(track => track.stop());
+    state.localStream = null;
+  }
+
+  if (state.remoteStream) {
+    state.remoteStream.getTracks().forEach(track => track.stop());
+    state.remoteStream = null;
+  }
+
+  if (state.peerConnectionStatsInterval) {
+      clearInterval(state.peerConnectionStatsInterval);
+      state.peerConnectionStatsInterval = null;
+  }
+
+  if (state.localView) {
+    state.localView.current.srcObject = null;
+  }
+
+  if (state.remoteView) {
+    state.remoteView.current.srcObject = null;
+  }
+
+  if (state.dataChannel) {
+    state.dataChannel = null;
   }
 }
 
@@ -155,7 +262,7 @@ async function startPlayerForMaster() {
 
   // Create Signaling Client
   console.log(`Creating signaling client...`);
-  const signalingClient = new SignalingClient({
+  state.signalingClient = new SignalingClient({
     channelARN,
     channelEndpoint: endpointsByProtocol.WSS,
     credentials: Auth.essentialCredentials(credentials),
@@ -226,22 +333,30 @@ async function startPlayerForMaster() {
   }
 
   console.log('Adding signalingClient.on open handler...');
-  signalingClient.on('open', async () => {
+  state.signalingClient.on('open', async () => {
     console.log('[MASTER] Connected to signaling service');
   });
 
   console.log('Adding signalingClient.on sdpOffer handler...');
-  signalingClient.on('sdpOffer', async (offer, remoteClientId) => {
+
+  state.signalingClient.on('sdpOffer', async (offer, remoteClientId) => {
     console.log('[MASTER] Received SDP offer from client: ' + remoteClientId);
 
     // Create a new peer connection using the offer from the given client
     const peerConnection = new RTCPeerConnection(configuration);
+    
     state.peerConnectionByClientId[remoteClientId] = peerConnection;
 
     if (state.openDataChannel) {
+      console.log(`Opened data channel with ${remoteClientId}`);
       state.dataChannelByClientId[remoteClientId] = peerConnection.createDataChannel('kvsDataChannel');
       peerConnection.ondatachannel = event => {
-        //event.channel.onmessage = onRemoteDataMessage;
+        event.channel.onmessage = (message) => {
+          const timestamp = new Date().toISOString();
+          const loggedMessage = `${timestamp} - from ${remoteClientId}: ${message.data}\n`;
+          console.log(loggedMessage);
+          state.receivedMessages += loggedMessage;
+        };
       };
     }
 
@@ -258,7 +373,7 @@ async function startPlayerForMaster() {
         // When trickle ICE is enabled, send the ICE candidates as they are generated.
         if (state.useTrickleICE) {
           console.log('[MASTER] Sending ICE candidate to client: ' + remoteClientId);
-          signalingClient.sendIceCandidate(candidate, remoteClientId);
+          state.signalingClient.sendIceCandidate(candidate, remoteClientId);
         }
       } else {
         console.log('[MASTER] All ICE candidates have been generated for client: ' + remoteClientId);
@@ -266,7 +381,7 @@ async function startPlayerForMaster() {
         // When trickle ICE is disabled, send the answer now that all the ICE candidates have ben generated.
         if (!state.useTrickleICE) {
           console.log('[MASTER] Sending SDP answer to client: ' + remoteClientId);
-          signalingClient.sendSdpAnswer(peerConnection.localDescription, remoteClientId);
+          state.signalingClient.sendSdpAnswer(peerConnection.localDescription, remoteClientId);
         }
       }
     });
@@ -302,13 +417,13 @@ async function startPlayerForMaster() {
     // When trickle ICE is enabled, send the answer now and then send ICE candidates as they are generated. Otherwise wait on the ICE candidates.
     if (state.useTrickleICE) {
       console.log('[MASTER] Sending SDP answer to client: ' + remoteClientId);
-      signalingClient.sendSdpAnswer(peerConnection.localDescription, remoteClientId);
+      state.signalingClient.sendSdpAnswer(peerConnection.localDescription, remoteClientId);
     }
     console.log('[MASTER] Generating ICE candidates for client: ' + remoteClientId);
 
   });
 
-  signalingClient.on('iceCandidate', async (candidate, remoteClientId) => {
+  state.signalingClient.on('iceCandidate', async (candidate, remoteClientId) => {
     console.log('[MASTER] Received ICE candidate from client: ' + remoteClientId);
 
     // Add the ICE candidate received from the client to the peer connection
@@ -316,16 +431,16 @@ async function startPlayerForMaster() {
     peerConnection.addIceCandidate(candidate);
   });
 
-  signalingClient.on('close', () => {
+  state.signalingClient.on('close', () => {
       console.log('[MASTER] Disconnected from signaling channel');
   });
 
-  signalingClient.on('error', () => {
+  state.signalingClient.on('error', () => {
       console.error('[MASTER] Signaling client error');
   });
 
   console.log('[MASTER] Starting master connection');
-  signalingClient.open();    
+  state.signalingClient.open();    
 
 }
   
@@ -375,7 +490,7 @@ async function startPlayerForViewer() {
 
   // Create Signaling Client
   console.log(`Creating signaling client...`);
-  const signalingClient = new SignalingClient({
+  state.signalingClient = new SignalingClient({
     channelARN,
     channelEndpoint: endpointsByProtocol.WSS,
     credentials: Auth.essentialCredentials(credentials),
@@ -432,18 +547,29 @@ async function startPlayerForViewer() {
 
   state.peerConnection = new RTCPeerConnection(configuration);
   if (state.openDataChannel) {
+      console.log(`Opened data channel with MASTER.`);
       state.dataChannel = state.peerConnection.createDataChannel('kvsDataChannel');
       state.peerConnection.ondatachannel = event => {
-          //event.channel.onmessage = onRemoteDataMessage;
+        event.channel.onmessage = (message) => {
+          const timestamp = new Date().toISOString();
+          const loggedMessage = `${timestamp} - from MASTER: ${message.data}\n`;
+          console.log(loggedMessage);
+          state.receivedMessages += loggedMessage;
+
+        };
       };
   }
 
   // Poll for connection stats
-  state.peerConnectionStatsInterval = setInterval(() => state.peerConnection.getStats().then(onStatsReport), 1000);
+  state.peerConnectionStatsInterval = setInterval(
+    () => {
+      state.peerConnection.getStats().then(onStatsReport);
+    }, 1000
+  );
 
   /// REVIEW BELOW HERE
 
-  signalingClient.on('open', async () => {
+  state.signalingClient.on('open', async () => {
     console.log('[VIEWER] Connected to signaling service');
 
     // Get a stream from the webcam, add it to the peer connection, and display it in the local view.
@@ -472,28 +598,28 @@ async function startPlayerForViewer() {
     // When trickle ICE is enabled, send the offer now and then send ICE candidates as they are generated. Otherwise wait on the ICE candidates.
     if (state.useTrickleICE) {
         console.log('[VIEWER] Sending SDP offer');
-        signalingClient.sendSdpOffer(state.peerConnection.localDescription);
+        state.signalingClient.sendSdpOffer(state.peerConnection.localDescription);
     }
     console.log('[VIEWER] Generating ICE candidates');
 });
 
-signalingClient.on('sdpAnswer', async answer => {
+state.signalingClient.on('sdpAnswer', async answer => {
     // Add the SDP answer to the peer connection
     console.log('[VIEWER] Received SDP answer');
     await state.peerConnection.setRemoteDescription(answer);
 });
 
-signalingClient.on('iceCandidate', candidate => {
+state.signalingClient.on('iceCandidate', candidate => {
     // Add the ICE candidate received from the MASTER to the peer connection
     console.log('[VIEWER] Received ICE candidate');
     state.peerConnection.addIceCandidate(candidate);
 });
 
-signalingClient.on('close', () => {
+state.signalingClient.on('close', () => {
     console.log('[VIEWER] Disconnected from signaling channel');
 });
 
-signalingClient.on('error', error => {
+state.signalingClient.on('error', error => {
     console.error('[VIEWER] Signaling client error: ', error);
 });
 
@@ -505,7 +631,7 @@ state.peerConnection.addEventListener('icecandidate', ({ candidate }) => {
         // When trickle ICE is enabled, send the ICE candidates as they are generated.
         if (state.useTrickleICE) {
             console.log('[VIEWER] Sending ICE candidate');
-            signalingClient.sendIceCandidate(candidate);
+            state.signalingClient.sendIceCandidate(candidate);
         }
     } else {
         console.log('[VIEWER] All ICE candidates have been generated');
@@ -513,7 +639,7 @@ state.peerConnection.addEventListener('icecandidate', ({ candidate }) => {
         // When trickle ICE is disabled, send the offer now that all the ICE candidates have ben generated.
         if (!state.useTrickleICE) {
             console.log('[VIEWER] Sending SDP offer');
-            signalingClient.sendSdpOffer(state.peerConnection.localDescription);
+            state.signalingClient.sendSdpOffer(state.peerConnection.localDescription);
         }
     }
 });
@@ -529,7 +655,7 @@ state.peerConnection.addEventListener('track', event => {
 });
 
 console.log('[VIEWER] Starting viewer connection');
-signalingClient.open();
+state.signalingClient.open();
   
 }
 
@@ -625,10 +751,17 @@ const ConfigurationForm = view(() => {
           label="Data channel"
           labelPlacement="top"
       />
-      <br /><br/>
-      <Button id="startPlayer" variant="contained" color="primary" onClick={startPlayer}>
-        Start player
-      </Button>
+      <br /><br />
+      { state.playerIsStarted ?
+        <Button id="stopPlayer" variant="contained" color="primary" onClick={stopPlayer}>
+          Stop player
+        </Button>
+        :
+        <Button id="startPlayer" variant="contained" color="primary" onClick={startPlayer}>
+          Start player
+        </Button>
+      }
+
     </Widget>
   );
   
@@ -665,29 +798,57 @@ const VideoPlayers = view(() => {
           </div>
         </div>
 
-        <div className="row datachannel">
-          <div className="col">
-            <div className="form-group">
-              <textarea type="text" className="form-control local-message" placeholder="DataChannel Message"/>
-            </div>
-          </div>
-          <div className="col">
-            <div className="card bg-light mb-3">
-              <pre className="remote-message card-body text-monospace preserve-whitespace"></pre>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <span className="send-message datachannel">
-            <button type="button" className="btn btn-primary">Send DataChannel Message</button>
-          </span>
-        </div>
+        <TextField
+          id="messageToSend"
+          label="DataChannel Message"
+          onChange={(e) => updateState('messageToSend', e.target.value)}
+          value={state.messageToSend} 
+        />
+        <br/><br/>
+        <Button id="startPlayer" variant="contained" color="primary" onClick={sendMessage}>
+        Send Message
+      </Button>
       </div>
+      <br/><br/><br/>
+      <TextField
+          id="receivedMessages"
+          label="received messages"
+          value={state.receivedMessages}
+          fullWidth={true}
+          multiline={true}
+          rowsMax={10}
+          size='small'
+          disabled={true}
+          variant="outlined"
+          />
     </Widget>
   );
   
 });
+
+function sendMessage() {
+  if (state.role === OPTIONS.ROLE.MASTER) {
+    Object.keys(state.dataChannelByClientId).forEach(clientId => {
+      try {
+        state.dataChannelByClientId[clientId].send(state.messageToSend);
+        console.log(`Message sent to client ${clientId}: ${state.messageToSend}`);
+      } catch (e) {
+        console.error('[MASTER] Send DataChannel: ', e.toString());
+      }
+  });
+  }
+  else {
+    if (state.dataChannel) {
+      try {
+        state.dataChannel.send(state.messageToSend);
+        console.log(`Message sent to master: ${state.messageToSend}`);
+      } catch (e) {
+          console.error('[VIEWER] Send DataChannel: ', e.toString());
+      }
+  }
+  }
+}
+
 //------------------------------------------------------------------------------
 // Update local state as well as save value to localStorage:
 function updateState(key, value) {
