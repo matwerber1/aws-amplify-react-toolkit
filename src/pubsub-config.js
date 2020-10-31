@@ -1,7 +1,7 @@
 const pubsub_config = {
-  "iot_endpoint": 'wss://a2mvse6841elo7-ats.iot.us-west-2.amazonaws.com/mqtt',
-  "iot_policy": "ReactIoTPolicy",
-  "iot_region": "us-west-2"
+  "iot_endpoint": 'wss://aiz9usfggyt4s-ats.iot.us-east-1.amazonaws.com/mqtt',
+  "iot_policy": "GenericPolicy",
+  "iot_region": "us-east-1"
 };
 
 export default pubsub_config;
