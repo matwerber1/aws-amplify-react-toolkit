@@ -91,10 +91,18 @@ From the browser, uses the AWS SDK to call the `ec2.describeInstances()` API for
 
 ![EC2 Instance Viewer Widget](screenshots/ec2-viewer-widget.png)
 
-**IoT Message Viewer** - publish and/or subscribe to an AWS IoT topic.
+**IoT Message Viewer**
+
+Publish and/or subscribe to an AWS IoT topic.
 
 Allows you to subscribe and/or publish to IoT topics via MQTT with AWS IoT Core's pubsub message broker.
 
 To use this widget, you need to create an AWS IoT policy per [these Amplify PubSub instructions](https://docs.amplify.aws/lib/pubsub/getting-started/q/platform/js#step-1-create-iam-policies-for-aws-iot). You also need to add your policy name, IoT endpoint, and region into the `./src/pubsub-config.js` document. Once you do that, the React app has code that will automatically attach the IoT policy to your Cognito user. 
 
 ![IoT Message Widget](screenshots/iot-message-viewer-widget.png)
+
+**Kinesis Video WebRTC Viewer/Player**
+
+Connect to a [Kinesis Video WebRTC signaling channel](https://docs.aws.amazon.com/kinesisvideostreams-webrtc-dg/latest/devguide/what-is-kvswebrtc.html) to send/receive live video. 
+
+![IoT Message Widget](screenshots/kvs-webrtc.png)
