@@ -20,7 +20,8 @@ const state = store({
   publishMessage: 'Hello, world!',
   isSubscribed: false,
   subscribedTopic: '',
-  subscription: null
+  subscription: null,
+  iotProviderConfigured: false
 });
 
 //------------------------------------------------------------------------------
@@ -69,7 +70,7 @@ const EventViewer = (props) => {
       </Button>
       <br /><br />
       { state.isSubscribed ?
-        <div style={{ color: 'green' }}>Currently subscribed to {state.subscribedTopic}</div>
+        <div style={{ color: 'green' }}>Currently subscribed to topic '{state.subscribedTopic}':</div>
         :
         <div style={{ color: 'red' }}>Subscribe to a topic to view messages</div>
       }
@@ -81,7 +82,7 @@ const EventViewer = (props) => {
           value={state.messages.join('')}
           fullWidth={true}
           multiline={true}
-          rowsMax={10}
+          rowsMax={30}
           size='small'
           disabled={true}
           variant="outlined"
@@ -111,11 +112,18 @@ async function getIoTEndpoint() {
 
 async function configurePubSub() {
 
-  console.log(`Configuring Amplify PubSub, region = ${awsExports.aws_project_region}, endpoint = ${state.iotEndpoint}`);
-  Amplify.addPluggable(new AWSIoTProvider({
-    aws_pubsub_region: awsExports.aws_project_region,
-    aws_pubsub_endpoint: state.iotEndpoint,
-  }));
+  if (!state.iotProviderConfigured) {
+    console.log(`Configuring Amplify PubSub, region = ${awsExports.aws_project_region}, endpoint = ${state.iotEndpoint}`);
+    Amplify.addPluggable(new AWSIoTProvider({
+      aws_pubsub_region: awsExports.aws_project_region,
+      aws_pubsub_endpoint: state.iotEndpoint,
+    }));
+    state.iotProviderConfigured = true;
+  }
+  else {
+    console.log('Amplify IoT provider already configured.');
+  }
+  
   
 }
 
@@ -159,14 +167,13 @@ function handleReceivedMessage(data) {
 
   console.log(`Message received on ${publishedTopic}:\n ${message}`);
   if (state.message_count >= state.message_history_limit) {
-    state.messages.shift();
+    state.messages.pop();
   }
   else {
     state.message_count += 1;
   }
   const timestamp = new Date().toISOString();
-  state.messages.push(`${timestamp} - topic '${publishedTopic}':\n ${message}\n\n`);
-  
+  state.messages.unshift(`${timestamp} - topic '${publishedTopic}':\n ${message}\n\n`);
 }
 
 //------------------------------------------------------------------------------
