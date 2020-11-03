@@ -1,0 +1,18 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  env:
+    Type: String
+
+Resources:
+
+  IoTPubSubPolicy:
+    Type: AWS::IoT::Policy
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action: "*"
+          Resource: "*"
+      PolicyName: !Sub "amplify-toolkit-iot-message-viewer"

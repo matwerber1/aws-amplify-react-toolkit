@@ -1,4 +1,10 @@
 {
+  "iotpubsub": {
+    "iotpolicy": {
+      "service": "IoT-Message-Viewer",
+      "providerPlugin": "awscloudformation"
+    }
+  },
   "auth": {
     "userPoolGroups": {
       "service": "Cognito-UserPool-Groups",
