@@ -75,11 +75,10 @@ To create a widget:
         component: UserInfo,
         displayName: 'Cognito Info',
         id: 'cognito-info',
-        displayOnFirstLoad: true
       },
       ```
 
-      For your new widget, add a new object to the array above. The `component` property should match the name of the component you imported, the `displayName` is whatever value you want shown to the user in the navigation menu, the `id` is an arbitrary, unique ID for the rendered component, and `displayOnFirstLoad` determines whether the widget is shown/activated when a user first logs in. 
+      For your new widget, add a new object to the array above. The `component` property should match the name of the component you imported, the `displayName` is whatever value you want shown to the user in the navigation menu, the `id` is an arbitrary, unique ID for the rendered component.
 
 ## Current Widgets
 
