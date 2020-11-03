@@ -4,98 +4,37 @@ import Widget from './widget.js';
 import { TextField } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import AWS from 'aws-sdk';
-import pubsub_config from '../../pubsub-config';
 import { Auth, PubSub } from 'aws-amplify';
+import { AWSIoTProvider } from '@aws-amplify/pubsub/lib/Providers';
+import Amplify from 'aws-amplify';
+import awsExports from "../../aws-exports";
 
 const state = store({
+  iotPolicy: 'amplify-toolkit-iot-message-viewer',     // This policy is created by this Amplify project; you don't need to change this unless you want to use a different policy.  
+  iotEndpoint: null,              // We retrieve this when the component first loads
   message_history_limit: 200,
   message_count: 0,
   messages: [],
-  subscribeTopicInput: localStorage.getItem('iotviewer-subscribeTopicInput') || 'iot_event_viewer',
-  publishTopicInput: localStorage.getItem('iotviewer-publishTopicInput') || 'iot_event_viewer',
-  publishMessage: localStorage.getItem('iotviewer-publishMessage') || 'Hello, world!',
+  subscribeTopicInput: 'iot_event_viewer',
+  publishTopicInput: 'iot_event_viewer',
+  publishMessage: 'Hello, world!',
   isSubscribed: false,
   subscribedTopic: '',
-  subscription: null,
-  // Call this function to save last-subscribed info to localStorage (aka save preferences):
-  setSubscribedTopicInput: function(topicInput) {
-    this.subscribedTopic = topicInput;
-    localStorage.setItem('iotviewer-subscribeTopicInput', topicInput);
-  },
-  // Call this function to save last-published info to localStorage (aka save preferences):
-  savePublishTopicAndMessage: function () {
-    localStorage.setItem('iotviewer-publishTopicInput', this.publishTopicInput);
-    localStorage.setItem('iotviewer-publishMessage', this.publishMessage);
-  }
+  subscription: null
 });
 
+//------------------------------------------------------------------------------
 const EventViewer = (props) => {
 
   // If needed, attach IoT policy to current user so they can use the pubsub functionality:
   useEffect(() => {
-    const REGION = pubsub_config.iot_region;
-    const policyName = pubsub_config.iot_policy;
-    
-    Auth.currentCredentials().then(credentials => {
-      const iot = new AWS.Iot({
-        region: REGION,
-        credentials: Auth.essentialCredentials(credentials)
-      });
-      const target = credentials.identityId;
-      iot.listAttachedPolicies({ target }, (err, data) => {
-        if (err) console.log(err, err.stack);
-        if (!data.policies.find(policy => policy.policyName === policyName)) {
-          iot.attachPolicy({ policyName, target }, (err, data) => {
-            if (err) console.log(`Error attaching IoT policy ${policyName} to Cognito identity ${target}: ${err}`, err.stack);
-            else console.log(`Attached IoT policy ${policyName} to identity ${target}.`);
-          });
-        }
-      });
-    });
+    async function setup() {
+      await getIoTEndpoint();
+      await configurePubSub();
+      await attachIoTPolicyToUser();
+    }
+    setup();
   }, []);
-
-  // Handles messages received from AWS IoT subscription:
-  function handleReceivedMessage(data) {
-    const symbolKey = Reflect.ownKeys(data.value).find(key => key.toString() === 'Symbol(topic)');
-    const publishedTopic = data.value[symbolKey];
-    console.log(`Message received on ${publishedTopic}: ${data.value.msg}`);
-    if (state.message_count >= state.message_history_limit) {
-      state.messages.shift();
-    }
-    else {
-      // Only increment our counter if message count less than allowed total history. 
-      // Once message count is equal to / greater than message history, we start removing the first (oldest) item to make room for the newer item
-      state.message_count += 1;
-    }
-    const timestamp = new Date().toISOString();
-    state.messages.push(`${timestamp} - topic=${publishedTopic}: ${data.value.msg}\n`);
-    
-  }
-
-  // Fired when user clicks subscribe button:
-  function subscribeToTopic() {
-    if (state.isSubscribed) {
-      state.subscription.unsubscribe();
-      console.log(`Unsubscribed from ${state.subscribedTopic}`);
-      state.isSubscribed = false;
-      state.subscribedTopic = '';
-    }
-    state.subscription = PubSub.subscribe(state.subscribeTopicInput).subscribe({
-      next: data => handleReceivedMessage(data),
-      error: error => console.error(error),
-      close: () => console.log('Done'),
-    });
-    console.log(`Subscribed to IoT topic ${state.subscribeTopicInput }.`);
-    state.isSubscribed = true;
-    state.setSubscribedTopicInput(state.subscribeTopicInput);
-  }
-
-  // Fired when user clicks the publish button:
-  function sendMessage() {
-    PubSub.publish(state.publishTopicInput, { msg: state.publishMessage });
-    console.log(`Published message to ${state.publishTopicInput}.`);
-    state.savePublishTopicAndMessage();
-  }
 
   return (
     <Widget>
@@ -104,24 +43,27 @@ const EventViewer = (props) => {
         id="subscribeTopicInput"
         label="Subscribed topic"
         value={state.subscribeTopicInput}
-        onChange={ev => (state.subscribeTopicInput = ev.target.value)}
+        onChange={e => updateState('subscribeTopicInput', e.target.value)}
+        
       />
+      <br/><br/>
       <Button id="subscribeToTopic" variant="contained" color="primary" onClick={subscribeToTopic}>
         Subscribe to topic
       </Button>
-      <br/><br/>
+      <br/><br/><br/>
       <TextField
-        id="publishTopic"
+        id="publishTopicInput"
         label="Topic to publish to"
         value={state.publishTopicInput}
-        onChange={ev => (state.publishTopicInput = ev.target.value)}
+        onChange={e => updateState('publishTopicInput', e.target.value)}
       />
       <TextField
         id="publishMessage"
         label="Message to publish"
         value={state.publishMessage}
-        onChange={ev => (state.publishMessage = ev.target.value)}
+        onChange={e => updateState('publishMessage', e.target.value)}
       />
+      <br/><br/>
       <Button id="publishMessage" variant="contained" color="primary" onClick={sendMessage}>
         Publish message
       </Button>
@@ -146,9 +88,113 @@ const EventViewer = (props) => {
           />
         :
           null}
-      
     </Widget>
   );
 };
+
+//------------------------------------------------------------------------------
+async function getIoTEndpoint() {
+
+  // Each AWS account has a unique IoT endpoint per region. We need to retrieve this value: 
+  console.log('Getting IoT Endpoint...');
+  const credentials = await Auth.currentCredentials();
+  const iot = new AWS.Iot({
+    region: awsExports.aws_project_region,
+    credentials: Auth.essentialCredentials(credentials)
+  });
+  const response = await iot.describeEndpoint({endpointType: 'iot:Data-ATS'}).promise();
+  state.iotEndpoint = `wss://${response.endpointAddress}/mqtt`
+  console.log(`Your IoT Endpoint is:\n ${state.iotEndpoint}`);
+
+}
+
+
+async function configurePubSub() {
+
+  console.log(`Configuring Amplify PubSub, region = ${awsExports.aws_project_region}, endpoint = ${state.iotEndpoint}`);
+  Amplify.addPluggable(new AWSIoTProvider({
+    aws_pubsub_region: awsExports.aws_project_region,
+    aws_pubsub_endpoint: state.iotEndpoint,
+  }));
+  
+}
+
+//------------------------------------------------------------------------------
+async function attachIoTPolicyToUser() {
+
+  const credentials = await Auth.currentCredentials();
+  const iot = new AWS.Iot({
+    region: awsExports.aws_project_region,
+    credentials: Auth.essentialCredentials(credentials)
+  });
+  const target = credentials.identityId;
+  const policyName = state.iotPolicy;
+  const response = await iot.listAttachedPolicies({target}).promise();
+  const policies = response.policies;
+  console.log(`Cognito federated identity ${target} has the following attached IoT policies:\n`, JSON.stringify(policies, null, 2));
+  if (!policies.find(policy => policy.policyName === policyName)) {
+    console.log(`User is missing ${policyName} IoT policy. Attaching...`);
+    await iot.attachPolicy({ policyName, target }).promise();
+    console.log(`Attached ${policyName} IoT policy.`);
+  }
+  else {
+    console.log(`User already has ${policyName} IoT policy attached.`);
+  }
+}
+
+//------------------------------------------------------------------------------
+function updateState(key, value) {
+  state[key] = value;
+  var localKey = `kvs-widget-${key}`;
+  localStorage.setItem(localKey, value);
+}
+
+//------------------------------------------------------------------------------
+function handleReceivedMessage(data) {
+
+  // Received messages contain the topic name in a Symbol that we have to decode: 
+  const symbolKey = Reflect.ownKeys(data.value).find(key => key.toString() === 'Symbol(topic)');
+  const publishedTopic = data.value[symbolKey];
+  const message = JSON.stringify(data.value, null, 2);
+
+  console.log(`Message received on ${publishedTopic}:\n ${message}`);
+  if (state.message_count >= state.message_history_limit) {
+    state.messages.shift();
+  }
+  else {
+    state.message_count += 1;
+  }
+  const timestamp = new Date().toISOString();
+  state.messages.push(`${timestamp} - topic '${publishedTopic}':\n ${message}\n\n`);
+  
+}
+
+//------------------------------------------------------------------------------
+function subscribeToTopic() {
+  
+  // Fired when user clicks subscribe button:
+  if (state.isSubscribed) {
+    state.subscription.unsubscribe();
+    console.log(`Unsubscribed from ${state.subscribedTopic}`);
+    state.isSubscribed = false;
+    state.subscribedTopic = '';
+  }
+  state.subscription = PubSub.subscribe(state.subscribeTopicInput).subscribe({
+    next: data => handleReceivedMessage(data),
+    error: error => console.error(error),
+    close: () => console.log('Done'),
+  });
+  state.isSubscribed = true;
+  state.subscribedTopic = state.subscribeTopicInput;
+  console.log(`Subscribed to IoT topic ${state.subscribeTopicInput }`);
+  
+}
+
+//------------------------------------------------------------------------------
+function sendMessage() {
+  // Fired when user clicks the publish button:
+  PubSub.publish(state.publishTopicInput, { msg: state.publishMessage });
+  console.log(`Published message to ${state.publishTopicInput}.`);
+}
 
 export default view(EventViewer); 
