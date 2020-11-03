@@ -5,12 +5,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import Amplify from "aws-amplify";
 import awsExports from "./aws-exports";
-import { AWSIoTProvider } from '@aws-amplify/pubsub/lib/Providers';
-import pubsub_config from './pubsub-config';
-Amplify.addPluggable(new AWSIoTProvider({
-  aws_pubsub_region: pubsub_config.iot_region,
-  aws_pubsub_endpoint: pubsub_config.iot_endpoint,
-}));
+
 Amplify.configure(awsExports);
 
 ReactDOM.render(
