@@ -6,9 +6,13 @@ This is really meant as a learning tool, not anything for production.
 
 ## Security
 
+This is not secure for for a production account!
+
 This is a demo tool I use in my test account, so it creates Cognito users that have a federated identity with administrative `*:*` permissions. 
 
 Because of that, you don't want just anybody to be able to sign up via your Cognito user pool. Therefore, I've disabled user signup and enforced "Admin-only user creation", meaning that an IAM user or role must use the Cognito administrative APIs (or the Cognito web console) to create users. This change is done by modifying the default CloudFormation created by the `amplify add auth` command, [as shown here](https://github.com/matwerber1/aws-amplify-react-toolkit/blob/e5bdb5d67343f736ea2a110e1f7a9a9bd6bcf81c/amplify/backend/auth/awstoolkitd5af8046d5af8046/awstoolkitd5af8046d5af8046-cloudformation-template.yml#L165).
+
+This project also deploys an IoT policy named `amplify-toolkit-iot-message-viewer` that gives full MQTT pubsub permissions to any user signed in to the Cognito User Pool. 
 
 ## Deployment
 
@@ -42,7 +46,7 @@ Because of that, you don't want just anybody to be able to sign up via your Cogn
 
 1. Run the web app locally via `npm run start`
 
-1. Go to the Cognito User Pool web console in your AWS account and create a user, then add them to the `admin` user group
+1. Go to the Cognito User Pool web console in your AWS account and create a user, then add them to the `admin` user group.
 
 1. Log in locally and enjoy! (?)
 
