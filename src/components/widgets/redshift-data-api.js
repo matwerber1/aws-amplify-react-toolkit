@@ -255,6 +255,7 @@ const StatementHistory = view(() => {
         status: statement.Status,
         createdAt: simpleDateString(statement.CreatedAt),
         updatedAt: simpleDateString(statement.UpdatedAt),
+        sql: statement.QueryString
       });
     }
     return rows;
@@ -329,7 +330,7 @@ const StatementHistory = view(() => {
 const StatementResultViewer = view((props) => {
 
   const { onClose, open } = props;
-  const { id } = state.selectedStatementForResults;  
+  const { id, statementName, sql, createdAt } = state.selectedStatementForResults;  
 
   useEffect(() => {
     if (id !== undefined) {
@@ -394,8 +395,13 @@ const StatementResultViewer = view((props) => {
   }
 
   return (
-    <Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
+    <Dialog fullWidth={true} maxWidth={"lg"} onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
       <DialogTitle id="simple-dialog-title">Statement Result Viewer</DialogTitle>
+
+      <b>ID:</b> {id} <br/>
+      <b>Name:</b> {statementName} <br/>
+      <b>SQL:</b> {sql} <br/>
+      <b>Created:</b> {createdAt} <br/><br/>
 
       <Button id="closeStatementResultView" variant="contained" color="primary" onClick={onClose}>
         Close

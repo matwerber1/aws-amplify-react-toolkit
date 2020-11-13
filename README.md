@@ -104,4 +104,21 @@ Allows you to subscribe and/or publish to IoT topics via MQTT with AWS IoT Core'
 
 Connect to a [Kinesis Video WebRTC signaling channel](https://docs.aws.amazon.com/kinesisvideostreams-webrtc-dg/latest/devguide/what-is-kvswebrtc.html) to send/receive live video. 
 
-![IoT Message Widget](screenshots/kvs-webrtc.png)
+![Kinesis WebRTC Widget](screenshots/kvs-webrtc.png)
+
+**Redshift Data API**
+
+This widget allows you to asynchronously submit queries to a Redshift cluster and later retrieve results when they are ready using [Redshift's new (O4, 2020) Data API](https://docs.aws.amazon.com/redshift/latest/mgmt/data-api.html).
+
+Prerequisites:
+
+* Existing Redshift cluster inside of a VPC
+* Username/password stored in AWS Secrets Manager and tagged with a key of `RedshiftDataFullAccess` ([see Data API docs for detail](https://docs.aws.amazon.com/redshift/latest/mgmt/data-api.html#data-api-secrets))
+
+**Submit queries and view their status:**
+
+![Redshift Data API - Summary](screenshots/redshift-data-1.png)
+
+**View query results when query is complete:**
+
+![Redshift Data API - Detail](screenshots/redshift-data-2.png)
