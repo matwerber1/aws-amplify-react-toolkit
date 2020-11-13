@@ -4,6 +4,21 @@ This is an AWS Amplify project that provides a web interface for demoing/testing
 
 This is really meant as a learning tool, not anything for production. 
 
+# Features
+
+The following features exist as browser "widgets" in the app. Scroll down further to the Widgets section for screenshots and details: 
+
+* Cognito Widget - shows you the JWT of the logged in user
+
+* EC2 Instances - Displays results of EC2.describeInstances()
+
+* IoT Message Viewer - publish and subscribe to AWS IoT Core topics in the browser
+
+* Kinesis WebRTC Viewier - connect to a Kinesis WebRTC Signaling channel to send/receive live video
+
+* Redshift Data API - asynchronously submit, browse, and view results of SQL queries for a Redshift cluster
+
+
 ## Security
 
 This is not secure for for a production account!
