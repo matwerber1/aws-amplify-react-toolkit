@@ -72,7 +72,7 @@ const Ec2DescribeInstances = () => {
   return (
     <Widget>
       <h2>EC2 Instances:</h2>
-      <RegionSelector value={region} setFunction={setRegion}/><br/>
+      <RegionSelector value={region} onChange={setRegion}/><br/>
       {renderResponse()}
     </Widget>
   );
