@@ -16,6 +16,7 @@ import UserInfo from './widgets/user-info';
 import Ec2DescribeInstances from './widgets/ec2-describe-instances';
 import IoTMessageViewer from './widgets/iot-message-viewer';
 import DemoWidget from './widgets/demo-widget';
+import RedshiftDataApi from './widgets/redshift-data-api';
 import KinesisWebRTC from './widgets/kinesis-webrtc';
 import { store, view } from '@risingstack/react-easy-state';
 
@@ -40,6 +41,11 @@ const state = store({
       component: KinesisWebRTC,
       displayName: 'Kinesis WebRTC',
       id: 'kinesis-webrtc',
+    },
+    {
+      component: RedshiftDataApi,
+      displayName: 'Redshift Data API',
+      id: 'redshift-data-api',
     },
     {
       component: DemoWidget,
