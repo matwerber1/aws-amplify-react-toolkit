@@ -26,21 +26,21 @@ const state = store({
       displayName: 'Cognito Info',
       id: 'cognito-info',
     },
-    {
-      component: Ec2DescribeInstances,
-      displayName: 'EC2 Instances',
-      id: 'ec2-instances',
-    },
+    // {
+    //   component: Ec2DescribeInstances,
+    //   displayName: 'EC2 Instances',
+    //   id: 'ec2-instances',
+    // },
     {
       component: IoTMessageViewer,
       displayName: 'IoT Message Viewer',
       id: 'iot-message-viewer',
     },
-    {
-      component: KinesisWebRTC,
-      displayName: 'Kinesis WebRTC',
-      id: 'kinesis-webrtc',
-    },
+    // {
+    //   component: KinesisWebRTC,
+    //   displayName: 'Kinesis WebRTC',
+    //   id: 'kinesis-webrtc',
+    // },
     {
       component: DemoWidget,
       displayName: 'Demo Widget',
