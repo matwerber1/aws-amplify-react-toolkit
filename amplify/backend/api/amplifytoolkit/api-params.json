@@ -1,0 +1,42 @@
+{
+    "paths": [
+        {
+            "name": "/demo",
+            "lambdaFunction": "awstoolkit7d6c6213",
+            "privacy": {
+                "private": true,
+                "auth": [
+                    "/POST",
+                    "/GET",
+                    "/PUT",
+                    "/PATCH",
+                    "/DELETE"
+                ]
+            },
+            "policyResourceName": "/demo"
+        }
+    ],
+    "resourceName": "amplifytoolkit",
+    "apiName": "amplifytoolkit",
+    "functionArns": [
+        {
+            "lambdaFunction": "awstoolkit7d6c6213"
+        }
+    ],
+    "privacy": {
+        "auth": 1,
+        "unauth": 0,
+        "authRoleName": "amplify-awstoolkit-dev-155847-authRole",
+        "unAuthRoleName": "amplify-awstoolkit-dev-155847-unauthRole"
+    },
+    "dependsOn": [
+        {
+            "category": "function",
+            "resourceName": "awstoolkit7d6c6213",
+            "attributes": [
+                "Name",
+                "Arn"
+            ]
+        }
+    ]
+}

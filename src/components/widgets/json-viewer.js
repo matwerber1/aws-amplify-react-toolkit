@@ -3,7 +3,7 @@ import ReactJson from 'react-json-view';
 import { view } from '@risingstack/react-easy-state';
 
 // Nifty tool for nice visualization of json objects:
-const JsonViewer = view(({ jsonObject, collapseStringsAfterLength }) => {
+const JsonViewer = view(({ jsonObject, collapseStringsAfterLength, collapsed }) => {
 
   const customStyle = {
     'textAlign': 'left',
@@ -11,11 +11,12 @@ const JsonViewer = view(({ jsonObject, collapseStringsAfterLength }) => {
 
   return (
     <ReactJson
-      theme='twilight'
-      collapseStringsAfterLength={collapseStringsAfterLength || 30 }
-      collapsed={1}
+      theme='rjv-default'
+      collapseStringsAfterLength={collapseStringsAfterLength || 50 }
+      collapsed={collapsed || 2}
       style={customStyle}
       src={jsonObject}
+      displayDataTypes={false}
       />
   );
 

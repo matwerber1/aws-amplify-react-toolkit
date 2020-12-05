@@ -28,5 +28,29 @@
       "dependsOn": [],
       "customAuth": false
     }
+  },
+  "function": {
+    "awstoolkit7d6c6213": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda",
+      "dependsOn": []
+    }
+  },
+  "api": {
+    "amplifytoolkit": {
+      "service": "API Gateway",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [
+        {
+          "category": "function",
+          "resourceName": "awstoolkit7d6c6213",
+          "attributes": [
+            "Name",
+            "Arn"
+          ]
+        }
+      ]
+    }
   }
 }

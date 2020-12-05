@@ -18,6 +18,7 @@ import IoTMessageViewer from './widgets/iot-message-viewer';
 import DemoWidget from './widgets/demo-widget';
 import RedshiftDataApi from './widgets/redshift-data-api';
 import KinesisWebRTC from './widgets/kinesis-webrtc';
+import ApiGateway from './widgets/api-gateway';
 import { store, view } from '@risingstack/react-easy-state';
 
 const state = store({
@@ -51,6 +52,11 @@ const state = store({
       component: DemoWidget,
       displayName: 'Demo Widget',
       id: 'demo-widget',
+    },
+    {
+      component: ApiGateway,
+      displayName: 'API Gateway',
+      id: 'api-gateway-widget',
     },
   ]
 });
