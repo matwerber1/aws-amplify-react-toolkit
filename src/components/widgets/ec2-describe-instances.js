@@ -7,7 +7,7 @@ import Widget from './widget.js';
 
 const Ec2DescribeInstances = () => {
 
-  const defaultRegion = localStorage.getItem('ec2viewer-region') || 'us-east-1';
+  const defaultRegion = localStorage.getItem('ec2viewer-region') || 'us-west-2';
 
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
@@ -63,7 +63,8 @@ const Ec2DescribeInstances = () => {
       return (
         <JsonViewer
           jsonObject={results}
-          collapseStringsAfterLength={50}
+          collapseStringsAfterLength={100}
+          collapsed={4}
         />
       );
     }
@@ -71,7 +72,7 @@ const Ec2DescribeInstances = () => {
 
   return (
     <Widget>
-      <h2>EC2 Instances:</h2>
+      <h2>EC2 Instances</h2>
       <RegionSelector value={region} onChange={setRegion}/><br/>
       {renderResponse()}
     </Widget>

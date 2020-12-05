@@ -26,7 +26,6 @@ const RegionSelector = view(({ value, onChange }) => {
     "ca-central-1",
   ];
 
-
   const menuItems = regions.map((region) => 
     <MenuItem key={region} value={region}>{region}</MenuItem>
   );
@@ -34,7 +33,7 @@ const RegionSelector = view(({ value, onChange }) => {
   return (
     <Select
     value={value}
-    onChange={ e => {console.log(`Region set to ${e.target.value}`); onChange(e)}}
+    onChange={ e => {console.log(`Region set to ${e.target.value}`); onChange(e.target.value)}}
   >
     {menuItems}
   </Select>
