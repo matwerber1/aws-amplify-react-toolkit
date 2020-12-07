@@ -4,7 +4,7 @@ import Widget from './widget.js';
 import { TextField } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import AWS from 'aws-sdk';
-import { Auth, PubSub } from 'aws-amplify';
+import { Auth, PubSub, API } from 'aws-amplify';
 import { AWSIoTProvider } from '@aws-amplify/pubsub/lib/Providers';
 import Amplify from 'aws-amplify';
 import awsExports from "../../aws-exports";
@@ -130,23 +130,29 @@ async function configurePubSub() {
 //------------------------------------------------------------------------------
 async function attachIoTPolicyToUser() {
 
-  const credentials = await Auth.currentCredentials();
-  const iot = new AWS.Iot({
-    region: awsExports.aws_project_region,
-    credentials: Auth.essentialCredentials(credentials)
-  });
-  const target = credentials.identityId;
-  const policyName = state.iotPolicy;
-  const response = await iot.listAttachedPolicies({target}).promise();
-  const policies = response.policies;
-  console.log(`Cognito federated identity ${target} has the following attached IoT policies:\n`, JSON.stringify(policies, null, 2));
-  if (!policies.find(policy => policy.policyName === policyName)) {
-    console.log(`User is missing ${policyName} IoT policy. Attaching...`);
-    await iot.attachPolicy({ policyName, target }).promise();
-    console.log(`Attached ${policyName} IoT policy.`);
+  // This should be the custom cognito attribute that tells us whether the user's
+  // federated identity already has the necessary IoT policy attached:
+  const IOT_ATTRIBUTE_FLAG = 'custom:iotPolicyIsAttached';
+
+  var userInfo = await Auth.currentUserInfo({bypassCache: true});
+  var iotPolicyIsAttached = userInfo.attributes[IOT_ATTRIBUTE_FLAG] === "true";
+
+  if (!iotPolicyIsAttached) {
+
+    const apiName = 'amplifytoolkit';
+    const path = '/attachIoTPolicyToFederatedUser'; 
+    const myInit = {
+        response: true, // OPTIONAL (return the entire Axios response object instead of only response.data)
+    };
+  
+    console.log(`Calling API GET ${path} to attach IoT policy to federated user...`);
+    var response = await API.get(apiName, path, myInit);
+    console.log(`GET ${path} ${response.status} response:\n ${JSON.stringify(response.data,null,2)}`);
+    console.log(`Attached IoT Policy to federated user.`)
+
   }
   else {
-    console.log(`User already has ${policyName} IoT policy attached.`);
+    console.log(`Federated user ID already attached to IoT Policy.`);
   }
 }
 

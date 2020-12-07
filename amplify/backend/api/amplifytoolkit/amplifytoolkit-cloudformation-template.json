@@ -89,74 +89,8 @@
                                 } 
                               ]
                             },
-                              "/POST",
-                            "/demo/*"
-                          ]
-                        ]
-                      },
-                                            {
-                        "Fn::Join": [
-                          "",
-                          [
-                            "arn:aws:execute-api:",
-                            {
-                              "Ref": "AWS::Region"
-                            },
-                            ":",
-                            {
-                              "Ref": "AWS::AccountId"
-                            },
-                            ":",
-                            {
-                              "Ref": "amplifytoolkit"
-                            },
-                            "/",
-                            {
-                              "Fn::If": [
-                                "ShouldNotCreateEnvResources",
-                                "Prod", 
-                                {
-                                  "Ref": "env"
-                                } 
-                              ]
-                            },
-                              "/POST",
-                            "/demo"
-                          ]
-                        ]
-                      }
-                    
-                      ,
-                    
-                    
-                      {
-                        "Fn::Join": [
-                          "",
-                          [
-                            "arn:aws:execute-api:",
-                            {
-                              "Ref": "AWS::Region"
-                            },
-                            ":",
-                            {
-                              "Ref": "AWS::AccountId"
-                            },
-                            ":",
-                            {
-                              "Ref": "amplifytoolkit"
-                            },
-                            "/",
-                            {
-                              "Fn::If": [
-                                "ShouldNotCreateEnvResources",
-                                "Prod", 
-                                {
-                                  "Ref": "env"
-                                } 
-                              ]
-                            },
                               "/GET",
-                            "/demo/*"
+                            "/*"
                           ]
                         ]
                       },
@@ -187,205 +121,7 @@
                               ]
                             },
                               "/GET",
-                            "/demo"
-                          ]
-                        ]
-                      }
-                    
-                      ,
-                    
-                    
-                      {
-                        "Fn::Join": [
-                          "",
-                          [
-                            "arn:aws:execute-api:",
-                            {
-                              "Ref": "AWS::Region"
-                            },
-                            ":",
-                            {
-                              "Ref": "AWS::AccountId"
-                            },
-                            ":",
-                            {
-                              "Ref": "amplifytoolkit"
-                            },
-                            "/",
-                            {
-                              "Fn::If": [
-                                "ShouldNotCreateEnvResources",
-                                "Prod", 
-                                {
-                                  "Ref": "env"
-                                } 
-                              ]
-                            },
-                              "/PUT",
-                            "/demo/*"
-                          ]
-                        ]
-                      },
-                                            {
-                        "Fn::Join": [
-                          "",
-                          [
-                            "arn:aws:execute-api:",
-                            {
-                              "Ref": "AWS::Region"
-                            },
-                            ":",
-                            {
-                              "Ref": "AWS::AccountId"
-                            },
-                            ":",
-                            {
-                              "Ref": "amplifytoolkit"
-                            },
-                            "/",
-                            {
-                              "Fn::If": [
-                                "ShouldNotCreateEnvResources",
-                                "Prod", 
-                                {
-                                  "Ref": "env"
-                                } 
-                              ]
-                            },
-                              "/PUT",
-                            "/demo"
-                          ]
-                        ]
-                      }
-                    
-                      ,
-                    
-                    
-                      {
-                        "Fn::Join": [
-                          "",
-                          [
-                            "arn:aws:execute-api:",
-                            {
-                              "Ref": "AWS::Region"
-                            },
-                            ":",
-                            {
-                              "Ref": "AWS::AccountId"
-                            },
-                            ":",
-                            {
-                              "Ref": "amplifytoolkit"
-                            },
-                            "/",
-                            {
-                              "Fn::If": [
-                                "ShouldNotCreateEnvResources",
-                                "Prod", 
-                                {
-                                  "Ref": "env"
-                                } 
-                              ]
-                            },
-                              "/PATCH",
-                            "/demo/*"
-                          ]
-                        ]
-                      },
-                                            {
-                        "Fn::Join": [
-                          "",
-                          [
-                            "arn:aws:execute-api:",
-                            {
-                              "Ref": "AWS::Region"
-                            },
-                            ":",
-                            {
-                              "Ref": "AWS::AccountId"
-                            },
-                            ":",
-                            {
-                              "Ref": "amplifytoolkit"
-                            },
-                            "/",
-                            {
-                              "Fn::If": [
-                                "ShouldNotCreateEnvResources",
-                                "Prod", 
-                                {
-                                  "Ref": "env"
-                                } 
-                              ]
-                            },
-                              "/PATCH",
-                            "/demo"
-                          ]
-                        ]
-                      }
-                    
-                      ,
-                    
-                    
-                      {
-                        "Fn::Join": [
-                          "",
-                          [
-                            "arn:aws:execute-api:",
-                            {
-                              "Ref": "AWS::Region"
-                            },
-                            ":",
-                            {
-                              "Ref": "AWS::AccountId"
-                            },
-                            ":",
-                            {
-                              "Ref": "amplifytoolkit"
-                            },
-                            "/",
-                            {
-                              "Fn::If": [
-                                "ShouldNotCreateEnvResources",
-                                "Prod", 
-                                {
-                                  "Ref": "env"
-                                } 
-                              ]
-                            },
-                              "/DELETE",
-                            "/demo/*"
-                          ]
-                        ]
-                      },
-                                            {
-                        "Fn::Join": [
-                          "",
-                          [
-                            "arn:aws:execute-api:",
-                            {
-                              "Ref": "AWS::Region"
-                            },
-                            ":",
-                            {
-                              "Ref": "AWS::AccountId"
-                            },
-                            ":",
-                            {
-                              "Ref": "amplifytoolkit"
-                            },
-                            "/",
-                            {
-                              "Fn::If": [
-                                "ShouldNotCreateEnvResources",
-                                "Prod", 
-                                {
-                                  "Ref": "env"
-                                } 
-                              ]
-                            },
-                              "/DELETE",
-                            "/demo"
+                            ""
                           ]
                         ]
                       }
@@ -450,7 +186,7 @@
             ],
             "paths": {
               
-              "/demo": {
+              "/attachIoTPolicyToFederatedUser": {
                 "options": {
                   "consumes": [
                     "application/json"
@@ -555,7 +291,7 @@
                   }
                 }
               },
-              "/demo/{proxy+}": {
+              "/attachIoTPolicyToFederatedUser/{proxy+}": {
                 "options": {
                   "consumes": [
                     "application/json"
@@ -739,7 +475,7 @@
         
         
         
-      "DeploymentAPIGWamplifytoolkit": {
+      "DeploymentAPIGWamplifytoolkitef3a2cef": {
         "Type": "AWS::ApiGateway::Deployment",
         "Properties": {
           "Description": "The Development stage deployment of your API.",

@@ -69,7 +69,7 @@
         "Timeout": "25",
         "Code": {
           "S3Bucket": "amplify-awstoolkit-dev-155847-deployment",
-          "S3Key": "amplify-builds/awstoolkit7d6c6213-7148726465426d374e74-build.zip"
+          "S3Key": "amplify-builds/awstoolkit7d6c6213-636852734c434f6e4871-build.zip"
         }
       }
     },

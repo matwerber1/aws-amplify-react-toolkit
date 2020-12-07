@@ -1,19 +1,14 @@
 {
     "paths": [
         {
-            "name": "/demo",
+            "name": "/attachIoTPolicyToFederatedUser",
             "lambdaFunction": "awstoolkit7d6c6213",
             "privacy": {
                 "private": true,
                 "auth": [
-                    "/POST",
-                    "/GET",
-                    "/PUT",
-                    "/PATCH",
-                    "/DELETE"
+                    "/GET"
                 ]
-            },
-            "policyResourceName": "/demo"
+            }
         }
     ],
     "resourceName": "amplifytoolkit",
@@ -38,5 +33,6 @@
                 "Arn"
             ]
         }
-    ]
+    ],
+    "uuid": "ef3a2cef"
 }
