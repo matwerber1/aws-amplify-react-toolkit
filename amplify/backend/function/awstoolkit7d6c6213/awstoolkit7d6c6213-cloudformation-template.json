@@ -69,7 +69,7 @@
         "Timeout": "25",
         "Code": {
           "S3Bucket": "amplify-awstoolkit-dev-155847-deployment",
-          "S3Key": "amplify-builds/awstoolkit7d6c6213-2f474b4b63326745494d-build.zip"
+          "S3Key": "amplify-builds/awstoolkit7d6c6213-7148726465426d374e74-build.zip"
         }
       }
     },
@@ -150,6 +150,15 @@
                   }
                 ]
               }
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "iot:AttachPolicy",
+                "cognito-idp:AdminUpdateUserAttributes",
+                "cognito-idp:ListUsers"
+              ],
+              "Resource": "*"
             }
           ]
         }
