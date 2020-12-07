@@ -11,18 +11,24 @@ const state = store({
   idToken: {},
   refreshToken: {},
   accessToken: {},
+  currentUserInfo: {}
 });
 
 
 const UserInfo = view(() => {
 
   useEffect(() => {
-    Auth.currentCredentials()
+    Auth.currentCredentials({bypassCache: true})
     .then(data => {
       state.currentCredentials = data;
     });
 
-    Auth.currentSession()
+    Auth.currentUserInfo({bypassCache: true})
+    .then(data => {
+      state.currentUserInfo = data;
+    });
+
+    Auth.currentSession({bypassCache: true})
     .then(data => {
       state.accessToken = data.getAccessToken();
       state.idToken = data.getIdToken();
@@ -36,6 +42,9 @@ const UserInfo = view(() => {
       <br/>
       <h3>Amplify.currentCredentials():</h3>
       <JsonViewer jsonObject={state.currentCredentials} collapsed={15} />
+      <br/>
+      <h3>Amplify.currentUserInfo():</h3>
+      <JsonViewer jsonObject={state.currentUserInfo} collapsed={15} />
       <br/>
       <h3>Amplify.currentSession().getAccessToken():</h3>
       <JsonViewer jsonObject={state.accessToken} collapsed={15} />
