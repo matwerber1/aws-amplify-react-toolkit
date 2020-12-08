@@ -49,14 +49,14 @@ const state = store({
       id: 'redshift-data-api',
     },
     {
-      component: DemoWidget,
-      displayName: 'Demo Widget',
-      id: 'demo-widget',
-    },
-    {
       component: ApiGateway,
       displayName: 'API Gateway',
       id: 'api-gateway-widget',
+    },
+    {
+      component: DemoWidget,
+      displayName: 'Demo Widget',
+      id: 'demo-widget',
     },
   ]
 });
