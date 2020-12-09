@@ -33,12 +33,12 @@
         "FunctionName": {
           "Fn::If": [
             "ShouldNotCreateEnvResources",
-            "awstoolkit7d6c6213",
+            "addIotPolicyToFederatedUser",
             {
               "Fn::Join": [
                 "",
                 [
-                  "awstoolkit7d6c6213",
+                  "addIotPolicyToFederatedUser",
                   "-",
                   {
                     "Ref": "env"
@@ -69,7 +69,7 @@
         "Timeout": "25",
         "Code": {
           "S3Bucket": "amplify-awstoolkit-dev-155847-deployment",
-          "S3Key": "amplify-builds/awstoolkit7d6c6213-636852734c434f6e4871-build.zip"
+          "S3Key": "amplify-builds/addIotPolicyToFederatedUser-73544163454653677747-build.zip"
         }
       }
     },
@@ -79,12 +79,12 @@
         "RoleName": {
           "Fn::If": [
             "ShouldNotCreateEnvResources",
-            "awstoolkitLambdaRole65c0a734",
+            "awstoolkitLambdaRole7fbe0a3e",
             {
               "Fn::Join": [
                 "",
                 [
-                  "awstoolkitLambdaRole65c0a734",
+                  "awstoolkitLambdaRole7fbe0a3e",
                   "-",
                   {
                     "Ref": "env"

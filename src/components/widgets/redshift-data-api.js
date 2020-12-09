@@ -23,6 +23,9 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Dialog from '@material-ui/core/Dialog';
 import dateformat from 'dateformat';
 
+// An arbitrary value to uniquely identify any values for this widget stored in local storage:
+const LOCAL_STORAGE_KEY = 'redshift-widget';
+
 const OPTIONS = {
   AUTH_METHOD: {
     USER: 'user',
@@ -79,7 +82,7 @@ const RedshiftDataApi = () => {
 // When function first loads, read last-used form values (if any) from local storage:
 function updateFormValuesFromLocalStorage() {
   for (const [key] of Object.entries(state)) {
-    var localStorageValue = localStorage.getItem(`redshift-data-api-widget-${key}`);
+    var localStorageValue = localStorage.getItem(`${LOCAL_STORAGE_KEY}-${key}`);
     if (localStorageValue) {
       // Convert true or false strings to boolean (needed for checkboxes):
       if (["true", "false"].includes(localStorageValue)) {
@@ -427,8 +430,7 @@ const StatementResultViewer = view((props) => {
 // Update local state as well as save value to localStorage:
 function updateState(key, value) {
   state[key] = value;
-  var localKey = `redshift-data-api-widget-${key}`;
-  //console.log(`Setting ${localKey} = `, value);
+  var localKey = `${LOCAL_STORAGE_KEY}-${key}`;
   localStorage.setItem(localKey, value);
 }
 

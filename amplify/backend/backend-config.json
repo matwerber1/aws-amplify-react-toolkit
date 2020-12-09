@@ -30,11 +30,16 @@
     }
   },
   "function": {
-    "awstoolkit7d6c6213": {
+    "addIotPolicyToFederatedUser": {
       "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda",
       "dependsOn": []
+    },
+    "echoApi": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
     }
   },
   "api": {
@@ -44,7 +49,15 @@
       "dependsOn": [
         {
           "category": "function",
-          "resourceName": "awstoolkit7d6c6213",
+          "resourceName": "addIotPolicyToFederatedUser",
+          "attributes": [
+            "Name",
+            "Arn"
+          ]
+        },
+        {
+          "category": "function",
+          "resourceName": "echoApi",
           "attributes": [
             "Name",
             "Arn"

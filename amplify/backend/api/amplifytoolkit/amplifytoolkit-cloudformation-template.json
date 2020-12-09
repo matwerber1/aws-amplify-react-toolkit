@@ -14,15 +14,29 @@
         },
     
     
-          "functionawstoolkit7d6c6213Name": {
+          "functionaddIotPolicyToFederatedUserName": {
             "Type": "String",
-            "Default": "functionawstoolkit7d6c6213Name"
+            "Default": "functionaddIotPolicyToFederatedUserName"
           },
         
           
-          "functionawstoolkit7d6c6213Arn": {
+          "functionaddIotPolicyToFederatedUserArn": {
             "Type": "String",
-            "Default": "functionawstoolkit7d6c6213Arn"
+            "Default": "functionaddIotPolicyToFederatedUserArn"
+          },
+        
+          
+          
+    
+          "functionechoApiName": {
+            "Type": "String",
+            "Default": "functionechoApiName"
+          },
+        
+          
+          "functionechoApiArn": {
+            "Type": "String",
+            "Default": "functionechoApiArn"
           }
         
           
@@ -128,6 +142,77 @@
                     
                     
                     
+                      ,
+                    
+                    
+                    
+                    
+                    
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "arn:aws:execute-api:",
+                            {
+                              "Ref": "AWS::Region"
+                            },
+                            ":",
+                            {
+                              "Ref": "AWS::AccountId"
+                            },
+                            ":",
+                            {
+                              "Ref": "amplifytoolkit"
+                            },
+                            "/",
+                            {
+                              "Fn::If": [
+                                "ShouldNotCreateEnvResources",
+                                "Prod", 
+                                {
+                                  "Ref": "env"
+                                } 
+                              ]
+                            },
+                              "/GET",
+                            "/*"
+                          ]
+                        ]
+                      },
+                                            {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "arn:aws:execute-api:",
+                            {
+                              "Ref": "AWS::Region"
+                            },
+                            ":",
+                            {
+                              "Ref": "AWS::AccountId"
+                            },
+                            ":",
+                            {
+                              "Ref": "amplifytoolkit"
+                            },
+                            "/",
+                            {
+                              "Fn::If": [
+                                "ShouldNotCreateEnvResources",
+                                "Prod", 
+                                {
+                                  "Ref": "env"
+                                } 
+                              ]
+                            },
+                              "/GET",
+                            ""
+                          ]
+                        ]
+                      }
+                    
+                    
+                    
                     
                     
                     ]
@@ -136,6 +221,8 @@
               }
             }
           },
+        
+        
         
         
         
@@ -278,7 +365,7 @@
                             
                             {
                                 
-                                "Ref": "functionawstoolkit7d6c6213Arn"
+                                "Ref": "functionaddIotPolicyToFederatedUserArn"
                             },
                             
                             "/invocations"
@@ -383,7 +470,218 @@
                           
                           {
                             
-                            "Ref": "functionawstoolkit7d6c6213Arn"
+                            "Ref": "functionaddIotPolicyToFederatedUserArn"
+                          },
+                          
+                          "/invocations"
+                        ]
+                      ]
+                    },
+                    "passthroughBehavior": "when_no_match",
+                    "httpMethod": "POST",
+                    "type": "aws_proxy"
+                  }
+                }
+              },   
+              
+              "/echo": {
+                "options": {
+                  "consumes": [
+                    "application/json"
+                  ],
+                  "produces": [
+                    "application/json"
+                  ],
+                  "responses": {
+                    "200": {
+                      "description": "200 response",
+                      "headers": {
+                        "Access-Control-Allow-Origin": {
+                          "type": "string"
+                        },
+                        "Access-Control-Allow-Methods": {
+                          "type": "string"
+                        },
+                        "Access-Control-Allow-Headers": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "x-amazon-apigateway-integration": {
+                    "responses": {
+                      "default": {
+                        "statusCode": "200",
+                        "responseParameters": {
+                          "method.response.header.Access-Control-Allow-Methods": "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'",
+                          "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                          "method.response.header.Access-Control-Allow-Origin": "'*'"
+                        }
+                      }
+                    },
+                    "requestTemplates": {
+                      "application/json": "{\"statusCode\": 200}"
+                    },
+                    "passthroughBehavior": "when_no_match",
+                    "type": "mock"
+                  }
+                },
+                "x-amazon-apigateway-any-method": {
+                  "consumes": [
+                    "application/json"
+                  ],
+                  "produces": [
+                    "application/json"
+                  ],
+                  "parameters": [
+                    {
+                      "in": "body",
+                      "name": "RequestSchema",
+                      "required": false,
+                      "schema": {
+                        "$ref": "#/definitions/RequestSchema"
+                      }
+                    }
+                  ],
+                  "responses": {
+                    "200": {
+                      "description": "200 response",
+                      "schema": {
+                        "$ref": "#/definitions/ResponseSchema"
+                      }
+                    }
+                  },
+                          
+                    "security": [
+                        {
+                          "sigv4": []
+                        }
+                      ],
+                  
+                  "x-amazon-apigateway-integration": {
+                    "responses": {
+                      "default": {
+                        "statusCode": "200"
+                      }
+                    },
+                    "uri": {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "arn:aws:apigateway:",
+                            {
+                              "Ref": "AWS::Region"
+                            },
+                            ":lambda:path/2015-03-31/functions/",
+                            
+                            {
+                                
+                                "Ref": "functionechoApiArn"
+                            },
+                            
+                            "/invocations"
+                          ]
+                        ]
+                      },
+                    "passthroughBehavior": "when_no_match",
+                    "httpMethod": "POST",
+                    "type": "aws_proxy"
+                  }
+                }
+              },
+              "/echo/{proxy+}": {
+                "options": {
+                  "consumes": [
+                    "application/json"
+                  ],
+                  "produces": [
+                    "application/json"
+                  ],
+                  "responses": {
+                    "200": {
+                      "description": "200 response",
+                      "headers": {
+                        "Access-Control-Allow-Origin": {
+                          "type": "string"
+                        },
+                        "Access-Control-Allow-Methods": {
+                          "type": "string"
+                        },
+                        "Access-Control-Allow-Headers": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "x-amazon-apigateway-integration": {
+                    "responses": {
+                      "default": {
+                        "statusCode": "200",
+                        "responseParameters": {
+                          "method.response.header.Access-Control-Allow-Methods": "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'",
+                          "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                          "method.response.header.Access-Control-Allow-Origin": "'*'"
+                        }
+                      }
+                    },
+                    "requestTemplates": {
+                      "application/json": "{\"statusCode\": 200}"
+                    },
+                    "passthroughBehavior": "when_no_match",
+                    "type": "mock"
+                  }
+                },
+                "x-amazon-apigateway-any-method": {
+                  "consumes": [
+                    "application/json"
+                  ],
+                  "produces": [
+                    "application/json"
+                  ],
+                  "parameters": [
+                    {
+                      "in": "body",
+                      "name": "RequestSchema",
+                      "required": false,
+                      "schema": {
+                        "$ref": "#/definitions/RequestSchema"
+                      }
+                    }
+                  ],
+                  "responses": {
+                    "200": {
+                      "description": "200 response",
+                      "schema": {
+                        "$ref": "#/definitions/ResponseSchema"
+                      }
+                    }
+                  },
+                          
+                    "security": [
+                        {
+                          "sigv4": []
+                        }
+                      ],
+                  
+                  "x-amazon-apigateway-integration": {
+                    "responses": {
+                      "default": {
+                        "statusCode": "200"
+                      }
+                    },
+                    "uri": {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:aws:apigateway:",
+                          {
+                            "Ref": "AWS::Region"
+                          },
+                          ":lambda:path/2015-03-31/functions/",
+                          
+                          {
+                            
+                            "Ref": "functionechoApiArn"
                           },
                           
                           "/invocations"
@@ -440,12 +738,46 @@
                   
         
         
-        "functionawstoolkit7d6c6213Permissionamplifytoolkit": {
+        "functionaddIotPolicyToFederatedUserPermissionamplifytoolkit": {
             "Type": "AWS::Lambda::Permission",
             "Properties": {
                 "FunctionName": 
                     {
-                        "Ref":  "functionawstoolkit7d6c6213Name"
+                        "Ref":  "functionaddIotPolicyToFederatedUserName"
+                    },
+                    
+                    "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                    "Fn::Join": [
+                        "",
+                        [
+                            "arn:aws:execute-api:",
+                            {
+                                "Ref": "AWS::Region"
+                            },
+                            ":",
+                            {
+                                "Ref": "AWS::AccountId"
+                            },
+                            ":",
+                            {
+                                "Ref": "amplifytoolkit"
+                            },
+                            "/*/*/*"
+                        ]
+                    ]
+                }
+            }
+        },
+        
+        
+        "functionechoApiPermissionamplifytoolkit": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+                "FunctionName": 
+                    {
+                        "Ref":  "functionechoApiName"
                     },
                     
                     "Action": "lambda:InvokeFunction",
@@ -475,7 +807,7 @@
         
         
         
-      "DeploymentAPIGWamplifytoolkitef3a2cef": {
+      "DeploymentAPIGWamplifytoolkitc98b7934": {
         "Type": "AWS::ApiGateway::Deployment",
         "Properties": {
           "Description": "The Development stage deployment of your API.",
