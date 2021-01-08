@@ -7,7 +7,7 @@ exports.handler = async (event) => {
         headers: {
           "Access-Control-Allow-Origin": "*"
       }, 
-        body: JSON.stringify('Hello from Lambda!'),
+        body: JSON.stringify(event, null, 2),
     };
     return response;
 };
