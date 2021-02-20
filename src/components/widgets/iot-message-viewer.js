@@ -9,6 +9,8 @@ import { AWSIoTProvider } from '@aws-amplify/pubsub/lib/Providers';
 import Amplify from 'aws-amplify';
 import awsExports from "../../aws-exports";
 
+const LOCAL_STORAGE_KEY = 'iot-widget';
+
 const state = store({
   iotPolicy: 'amplify-toolkit-iot-message-viewer',     // This policy is created by this Amplify project; you don't need to change this unless you want to use a different policy.  
   iotEndpoint: null,              // We retrieve this when the component first loads
@@ -24,6 +26,12 @@ const state = store({
   iotProviderConfigured: false
 });
 
+const stateKeysToSave = [
+  'subscribeTopicInput',
+  'publishTopicInput',
+  'publishMessage'
+];
+
 //------------------------------------------------------------------------------
 const EventViewer = (props) => {
 
@@ -35,6 +43,7 @@ const EventViewer = (props) => {
       await attachIoTPolicyToUser();
     }
     setup();
+    updateFormValuesFromLocalStorage();
   }, []);
 
   return (
@@ -158,8 +167,9 @@ async function attachIoTPolicyToUser() {
 
 //------------------------------------------------------------------------------
 function updateState(key, value) {
+  console.log(key, value);
   state[key] = value;
-  var localKey = `kvs-widget-${key}`;
+  var localKey = `${LOCAL_STORAGE_KEY}-${key}`;
   localStorage.setItem(localKey, value);
 }
 
@@ -209,5 +219,32 @@ function sendMessage() {
   PubSub.publish(state.publishTopicInput, { msg: state.publishMessage });
   console.log(`Published message to ${state.publishTopicInput}.`);
 }
+
+
+function updateFormValuesFromLocalStorage() {
+
+  for (const [key] of Object.entries(state)) {
+    
+    if (stateKeysToSave.includes(key)) {
+      console.log(`Getting ${key} from local storage...`);
+      var localStorageValue = localStorage.getItem(`${LOCAL_STORAGE_KEY}-${key}`);
+  
+      if (localStorageValue) {
+  
+        // Convert true or false strings to boolean (needed for checkboxes):
+        if (["true", "false"].includes(localStorageValue)) {
+          localStorageValue = localStorageValue === "true";
+        }
+        //console.log(`Setting ${key} = `, localStorageValue);
+        state[key] = localStorageValue;
+        console.log('value = ' + localStorageValue);
+      }
+  
+    }
+  
+  }
+
+}
+
 
 export default view(EventViewer); 
