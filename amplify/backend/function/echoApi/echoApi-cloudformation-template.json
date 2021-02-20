@@ -68,7 +68,7 @@
         "Layers": [],
         "Timeout": "25",
         "Code": {
-          "S3Bucket": "amplify-awstoolkit-dev-155847-deployment",
+          "S3Bucket": "amplify-awstoolkit-dev-94132-deployment",
           "S3Key": "amplify-builds/echoApi-7563677132515571385a-build.zip"
         }
       }

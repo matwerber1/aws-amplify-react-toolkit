@@ -198,6 +198,10 @@ Resources:
     Properties:
       UserPoolName: !If [ShouldNotCreateEnvResources, !Ref userPoolName, !Join ['',[!Ref userPoolName, '-', !Ref env]]]
       
+      # Since this project provides admin privileges to users, we disable user signup (i.e. only admins can create users)
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: true
+
       Schema: 
         
         -

@@ -3,15 +3,23 @@
 
 const awsmobile = {
     "aws_project_region": "us-west-2",
-    "aws_cognito_identity_pool_id": "us-west-2:5214f2db-370c-456c-8c4a-c8a348ada679",
+    "aws_cognito_identity_pool_id": "us-west-2:0eaf0878-279a-46ec-a1bf-27a6a95aa29b",
     "aws_cognito_region": "us-west-2",
-    "aws_user_pools_id": "us-west-2_LoM7etRWg",
-    "aws_user_pools_web_client_id": "45bpb4e8malj80t52g95ogjph1",
+    "aws_user_pools_id": "us-west-2_xklk7bBH3",
+    "aws_user_pools_web_client_id": "19s1qflvttoo3uvvdt3llgm13u",
     "oauth": {},
     "aws_cloud_logic_custom": [
         {
             "name": "amplifytoolkit",
-            "endpoint": "https://ghl9weghc7.execute-api.us-west-2.amazonaws.com/dev",
+            "endpoint": "https://1evprmj79d.execute-api.us-west-2.amazonaws.com/dev",
+            "region": "us-west-2"
+        }
+    ],
+    "aws_bots": "enable",
+    "aws_bots_config": [
+        {
+            "name": "BookTrip_dev",
+            "alias": "$LATEST",
             "region": "us-west-2"
         }
     ]

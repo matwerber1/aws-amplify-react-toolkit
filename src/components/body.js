@@ -19,6 +19,7 @@ import DemoWidget from './widgets/demo-widget';
 import RedshiftDataApi from './widgets/redshift-data-api';
 import KinesisWebRTC from './widgets/kinesis-webrtc';
 import ApiGateway from './widgets/api-gateway';
+import LexChatbot from './widgets/lex-chatbot';
 import { store, view } from '@risingstack/react-easy-state';
 
 const state = store({
@@ -52,6 +53,11 @@ const state = store({
       component: ApiGateway,
       displayName: 'API Gateway',
       id: 'api-gateway-widget',
+    },
+    {
+      component: LexChatbot,
+      displayName: 'Lex Chatbot',
+      id: 'chatbot-widget',
     },
     {
       component: DemoWidget,

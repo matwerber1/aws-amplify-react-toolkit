@@ -1,3 +1,7 @@
+ /* Amplify Params - DO NOT EDIT
+	ENV
+	REGION
+Amplify Params - DO NOT EDIT */
 const aws = require('aws-sdk');
 const iot = new aws.Iot();
 const cognito = new aws.CognitoIdentityServiceProvider();
