@@ -183,13 +183,13 @@ function handleReceivedMessage(data) {
 
   console.log(`Message received on ${publishedTopic}:\n ${message}`);
   if (state.message_count >= state.message_history_limit) {
-    state.messages.pop();
+    state.messages.shift();
   }
   else {
     state.message_count += 1;
   }
   const timestamp = new Date().toISOString();
-  state.messages.unshift(`${timestamp} - topic '${publishedTopic}':\n ${message}\n\n`);
+  state.messages.push(`${timestamp} - topic '${publishedTopic}':\n ${message}\n\n`);
 }
 
 //------------------------------------------------------------------------------
