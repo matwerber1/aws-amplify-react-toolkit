@@ -39,6 +39,13 @@ This project also deploys an IoT policy named `amplify-toolkit-iot-message-viewe
 
     `git clone https://github.com/matwerber1/aws-amplify-react-toolkit`
 
+1. Install dependencies:
+
+    ```sh
+    cd aws-amplify-react-toolkit
+    npm install
+    ```
+
 1. Configure amplify:
 
     `amplify configure`

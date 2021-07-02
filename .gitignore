@@ -38,3 +38,5 @@ amplify-build-config.json
 amplify-gradle-config.json
 amplifytools.xcconfig
 .vscode
+
+aws-exports.js
