@@ -9,7 +9,7 @@ import Grid from '@material-ui/core/Grid';
 // import VolumeUp from '@material-ui/icons/VolumeUp';
 import Button from '@material-ui/core/Button';
 import AWS from 'aws-sdk';
-import { Auth, PubSub } from 'aws-amplify';
+import { Auth, PubSub, API } from 'aws-amplify';
 import { AWSIoTProvider } from '@aws-amplify/pubsub/lib/Providers';
 import Amplify from 'aws-amplify';
 import awsExports from "../../aws-exports";
@@ -21,6 +21,8 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
 import Paper from '@material-ui/core/Paper';
+
+const LOCAL_STORAGE_KEY = 'iot-widget';
 
 const state = store({
   iotPolicy: 'amplify-toolkit-iot-message-viewer',     // This policy is created by this Amplify project; you don't need to change this unless you want to use a different policy.  
@@ -81,6 +83,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const stateKeysToSave = [
+  'subscribeTopicInput',
+  'publishTopicInput',
+  'publishMessage'
+];
+
 //------------------------------------------------------------------------------
 const EventViewer = (props) => {
 
@@ -94,6 +102,7 @@ const EventViewer = (props) => {
       await sendMessageEmpty();
     }
     setup();
+    updateFormValuesFromLocalStorage();
   }, []);
  const classes = useStyles();
  const [value, setValue] = React.useState(30);
@@ -381,23 +390,29 @@ async function configurePubSub() {
 //------------------------------------------------------------------------------
 async function attachIoTPolicyToUser() {
 
-  const credentials = await Auth.currentCredentials();
-  const iot = new AWS.Iot({
-    region: awsExports.aws_project_region,
-    credentials: Auth.essentialCredentials(credentials)
-  });
-  const target = credentials.identityId;
-  const policyName = state.iotPolicy;
-  const response = await iot.listAttachedPolicies({target}).promise();
-  const policies = response.policies;
-  console.log(`Cognito federated identity ${target} has the following attached IoT policies:\n`, JSON.stringify(policies, null, 2));
-  if (!policies.find(policy => policy.policyName === policyName)) {
-    console.log(`User is missing ${policyName} IoT policy. Attaching...`);
-    await iot.attachPolicy({ policyName, target }).promise();
-    console.log(`Attached ${policyName} IoT policy.`);
+  // This should be the custom cognito attribute that tells us whether the user's
+  // federated identity already has the necessary IoT policy attached:
+  const IOT_ATTRIBUTE_FLAG = 'custom:iotPolicyIsAttached';
+
+  var userInfo = await Auth.currentUserInfo({bypassCache: true});
+  var iotPolicyIsAttached = userInfo.attributes[IOT_ATTRIBUTE_FLAG] === "true";
+
+  if (!iotPolicyIsAttached) {
+
+    const apiName = 'amplifytoolkit';
+    const path = '/attachIoTPolicyToFederatedUser'; 
+    const myInit = {
+        response: true, // OPTIONAL (return the entire Axios response object instead of only response.data)
+    };
+  
+    console.log(`Calling API GET ${path} to attach IoT policy to federated user...`);
+    var response = await API.get(apiName, path, myInit);
+    console.log(`GET ${path} ${response.status} response:\n ${JSON.stringify(response.data,null,2)}`);
+    console.log(`Attached IoT Policy to federated user.`)
+
   }
   else {
-    console.log(`User already has ${policyName} IoT policy attached.`);
+    console.log(`Federated user ID already attached to IoT Policy.`);
   }
 }
 
@@ -405,7 +420,7 @@ async function attachIoTPolicyToUser() {
 function updateState(key, value) {
   console.log(`Data changed ${key}:\n ${value}`);
   state[key] = value;
-  var localKey = `kvs-widget-${key}`;
+  var localKey = `${LOCAL_STORAGE_KEY}-${key}`;
   localStorage.setItem(localKey, value);
 }
 
@@ -484,23 +499,13 @@ function handleReceivedMessage(data) {
 
   console.log(`Message received on ${publishedTopic}:\n ${message}`);
   if (state.message_count >= state.message_history_limit) {
-    state.messages.pop();
+    state.messages.shift();
   }
   else {
     state.message_count += 1;
   }
   const timestamp = new Date().toISOString();
-  state.messages=[];
-  state.messages.unshift(`${message}\n`);
-  
-
-  // reported.PWM1 = PWM1;
-  // reported.PWM2 = PWM2;
-  // reported.PWM3 = PWM3;
-  // reported.PWM4 = PWM4;
-    console.log(`Your Pot 1 Value is:\n ${reported.Pot1}`);
-
-  // state.messages.unshift(`${timestamp} - topic '${publishedTopic}':\n ${message}\n\n`);
+  state.messages.push(`${timestamp} - topic '${publishedTopic}':\n ${message}\n\n`);
 }
 
 //------------------------------------------------------------------------------
@@ -540,10 +545,30 @@ function sendMessage() {
   console.log(`Published message to ${state.publishTopicInput}.`);
 }
 
-async function sendMessageEmpty() {
-  // Fired when user clicks the publish button:
-  PubSub.publish(state.publishTopicGet, { msg:"" });
-  console.log(`Published message to ${state.publishTopicGet}.`);
+
+function updateFormValuesFromLocalStorage() {
+
+  for (const [key] of Object.entries(state)) {
+    
+    if (stateKeysToSave.includes(key)) {
+      console.log(`Getting ${key} from local storage...`);
+      var localStorageValue = localStorage.getItem(`${LOCAL_STORAGE_KEY}-${key}`);
+  
+      if (localStorageValue) {
+  
+        // Convert true or false strings to boolean (needed for checkboxes):
+        if (["true", "false"].includes(localStorageValue)) {
+          localStorageValue = localStorageValue === "true";
+        }
+        //console.log(`Setting ${key} = `, localStorageValue);
+        state[key] = localStorageValue;
+        console.log('value = ' + localStorageValue);
+      }
+  
+    }
+  
+  }
+
 }
 
 

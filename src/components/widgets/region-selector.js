@@ -3,7 +3,7 @@ import { view } from '@risingstack/react-easy-state';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 
-const RegionSelector = view(({ value, setFunction }) => {
+const RegionSelector = view(({ value, onChange }) => {
 
   const regions = [
     "ap-south-1",
@@ -26,19 +26,14 @@ const RegionSelector = view(({ value, setFunction }) => {
     "ca-central-1",
   ];
 
-
   const menuItems = regions.map((region) => 
     <MenuItem key={region} value={region}>{region}</MenuItem>
   );
 
-  function onChangeHandler(event) {
-    setFunction(event.target.value);
-  }
-
   return (
     <Select
     value={value}
-    onChange={onChangeHandler}
+    onChange={ e => {console.log(`Region set to ${e.target.value}`); onChange(e.target.value)}}
   >
     {menuItems}
   </Select>

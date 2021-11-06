@@ -1,0 +1,59 @@
+{
+    "paths": [
+        {
+            "name": "/attachIoTPolicyToFederatedUser",
+            "lambdaFunction": "addIotPolicyToFederatedUser",
+            "privacy": {
+                "private": true,
+                "auth": [
+                    "/GET"
+                ]
+            }
+        },
+        {
+            "name": "/echo",
+            "lambdaFunction": "echoApi",
+            "privacy": {
+                "private": true,
+                "auth": [
+                    "/GET"
+                ]
+            }
+        }
+    ],
+    "resourceName": "amplifytoolkit",
+    "apiName": "amplifytoolkit",
+    "functionArns": [
+        {
+            "lambdaFunction": "addIotPolicyToFederatedUser"
+        },
+        {
+            "lambdaFunction": "echoApi"
+        }
+    ],
+    "privacy": {
+        "auth": 2,
+        "unauth": 0,
+        "authRoleName": "amplify-awstoolkit-dev-155847-authRole",
+        "unAuthRoleName": "amplify-awstoolkit-dev-155847-unauthRole"
+    },
+    "dependsOn": [
+        {
+            "category": "function",
+            "resourceName": "addIotPolicyToFederatedUser",
+            "attributes": [
+                "Name",
+                "Arn"
+            ]
+        },
+        {
+            "category": "function",
+            "resourceName": "echoApi",
+            "attributes": [
+                "Name",
+                "Arn"
+            ]
+        }
+    ],
+    "uuid": "c98b7934"
+}

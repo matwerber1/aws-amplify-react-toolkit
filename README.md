@@ -4,6 +4,21 @@ This is an AWS Amplify project that provides a web interface for demoing/testing
 
 This is really meant as a learning tool, not anything for production. 
 
+# Features
+
+The following features exist as browser "widgets" in the app. Scroll down further to the Widgets section for screenshots and details: 
+
+* Cognito Widget - shows you the JWT of the logged in user
+
+* EC2 Instances - Displays results of EC2.describeInstances()
+
+* IoT Message Viewer - publish and subscribe to AWS IoT Core topics in the browser
+
+* Kinesis WebRTC Viewier - connect to a Kinesis WebRTC Signaling channel to send/receive live video
+
+* Redshift Data API - asynchronously submit, browse, and view results of SQL queries for a Redshift cluster
+
+
 ## Security
 
 This is not secure for for a production account!
@@ -23,6 +38,13 @@ This project also deploys an IoT policy named `amplify-toolkit-iot-message-viewe
 1. Clone this repository:
 
     `git clone https://github.com/matwerber1/aws-amplify-react-toolkit`
+
+1. Install dependencies:
+
+    ```sh
+    cd aws-amplify-react-toolkit
+    npm install
+    ```
 
 1. Configure amplify:
 
@@ -75,11 +97,10 @@ To create a widget:
         component: UserInfo,
         displayName: 'Cognito Info',
         id: 'cognito-info',
-        displayOnFirstLoad: true
       },
       ```
 
-      For your new widget, add a new object to the array above. The `component` property should match the name of the component you imported, the `displayName` is whatever value you want shown to the user in the navigation menu, the `id` is an arbitrary, unique ID for the rendered component, and `displayOnFirstLoad` determines whether the widget is shown/activated when a user first logs in. 
+      For your new widget, add a new object to the array above. The `component` property should match the name of the component you imported, the `displayName` is whatever value you want shown to the user in the navigation menu, the `id` is an arbitrary, unique ID for the rendered component.
 
 ## Current Widgets
 
@@ -105,4 +126,21 @@ Allows you to subscribe and/or publish to IoT topics via MQTT with AWS IoT Core'
 
 Connect to a [Kinesis Video WebRTC signaling channel](https://docs.aws.amazon.com/kinesisvideostreams-webrtc-dg/latest/devguide/what-is-kvswebrtc.html) to send/receive live video. 
 
-![IoT Message Widget](screenshots/kvs-webrtc.png)
+![Kinesis WebRTC Widget](screenshots/kvs-webrtc.png)
+
+**Redshift Data API**
+
+This widget allows you to asynchronously submit queries to a Redshift cluster and later retrieve results when they are ready using [Redshift's new (O4, 2020) Data API](https://docs.aws.amazon.com/redshift/latest/mgmt/data-api.html).
+
+Prerequisites:
+
+* Existing Redshift cluster inside of a VPC
+* Username/password stored in AWS Secrets Manager and tagged with a key of `RedshiftDataFullAccess` ([see Data API docs for detail](https://docs.aws.amazon.com/redshift/latest/mgmt/data-api.html#data-api-secrets))
+
+**Submit queries and view their status:**
+
+![Redshift Data API - Summary](screenshots/redshift-data-1.png)
+
+**View query results when query is complete:**
+
+![Redshift Data API - Detail](screenshots/redshift-data-2.png)

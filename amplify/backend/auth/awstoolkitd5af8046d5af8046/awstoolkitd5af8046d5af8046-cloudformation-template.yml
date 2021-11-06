@@ -13,109 +13,147 @@ Parameters:
     
   identityPoolName:
     Type: String
-                
+  
+            
+  
   allowUnauthenticatedIdentities:
     Type: String
             
   resourceNameTruncated:
     Type: String
-              
+  
+            
   userPoolName:
     Type: String
-                      
+  
+            
+        
   autoVerifiedAttributes:
     Type: CommaDelimitedList
       
   mfaConfiguration:
     Type: String
-                      
+  
+            
+        
   mfaTypes:
     Type: CommaDelimitedList
       
   smsAuthenticationMessage:
     Type: String
-              
+  
+            
   smsVerificationMessage:
     Type: String
-              
+  
+            
   emailVerificationSubject:
     Type: String
-              
+  
+            
   emailVerificationMessage:
     Type: String
-                
+  
+            
+  
   defaultPasswordPolicy:
     Type: String
-                
+            
+    
   passwordPolicyMinLength:
     Type: Number
-                  
+          
+        
   passwordPolicyCharacters:
     Type: CommaDelimitedList
-              
+      
+        
   requiredAttributes:
     Type: CommaDelimitedList
-        
+      
+  
   userpoolClientGenerateSecret:
     Type: String
-                
+            
+    
   userpoolClientRefreshTokenValidity:
     Type: Number
-                  
+          
+        
   userpoolClientWriteAttributes:
     Type: CommaDelimitedList
-              
+      
+        
   userpoolClientReadAttributes:
     Type: CommaDelimitedList
       
   userpoolClientLambdaRole:
     Type: String
-                
+  
+            
+  
   userpoolClientSetAttributes:
     Type: String
             
   sharedId:
     Type: String
-              
+  
+            
   resourceName:
     Type: String
-              
+  
+            
   authSelections:
     Type: String
-                                      
+  
+            
+            
+            
   useDefault:
     Type: String
-                
+  
+            
+  
   thirdPartyAuth:
     Type: String
-              
+            
+  
   userPoolGroups:
     Type: String
-              
+            
+  
   adminQueries:
     Type: String
             
   triggers:
     Type: String
-                
+  
+            
+  
   hostedUI:
     Type: String
-                    
+            
+        
   userPoolGroupList:
     Type: CommaDelimitedList
-                  
+      
   serviceName:
     Type: String
-                    
+  
+            
+      
   parentStack:
     Type: String
-                
+        
+        
   permissions:
     Type: CommaDelimitedList
-              
+      
+        
   dependsOn:
     Type: CommaDelimitedList
-    
+      
+            
 Conditions:
   ShouldNotCreateEnvResources: !Equals [ !Ref env, NONE ]
 
@@ -170,9 +208,12 @@ Resources:
           Name: email
           Required: true
           Mutable: true
+        -
+          AttributeDataType: Boolean
+          Name: iotPolicyIsAttached
+          Required: false
+          Mutable: true
         
-      
-      
       
       AutoVerifiedAttributes: !Ref autoVerifiedAttributes
       
@@ -216,6 +257,9 @@ Resources:
     Properties:
       ClientName: awstood5af8046_app_clientWeb
       
+      ReadAttributes: !Ref userpoolClientReadAttributes
+      WriteAttributes: !Ref userpoolClientWriteAttributes
+      
       RefreshTokenValidity: !Ref userpoolClientRefreshTokenValidity
       UserPoolId: !Ref UserPool
     DependsOn: UserPool
@@ -225,6 +269,9 @@ Resources:
     Type: "AWS::Cognito::UserPoolClient"
     Properties:
       ClientName: awstood5af8046_app_client
+      
+      ReadAttributes: !Ref userpoolClientReadAttributes
+      WriteAttributes: !Ref userpoolClientWriteAttributes
       
       GenerateSecret: !Ref userpoolClientGenerateSecret
       RefreshTokenValidity: !Ref userpoolClientRefreshTokenValidity
@@ -524,8 +571,6 @@ Outputs :
   AppClientID:
     Value: !Ref 'UserPoolClient'
     Description: The user pool app client id
-  AppClientSecret:
-    Value: !GetAtt UserPoolClientInputs.appSecret
   
   CreatedSNSRole: 
     Value: !GetAtt SNSRole.Arn

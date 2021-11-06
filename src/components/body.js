@@ -16,7 +16,10 @@ import UserInfo from './widgets/user-info';
 import Ec2DescribeInstances from './widgets/ec2-describe-instances';
 import IoTMessageViewer from './widgets/iot-message-viewer';
 import DemoWidget from './widgets/demo-widget';
+import RedshiftDataApi from './widgets/redshift-data-api';
 import KinesisWebRTC from './widgets/kinesis-webrtc';
+import ApiGateway from './widgets/api-gateway';
+import LexChatbot from './widgets/lex-chatbot';
 import { store, view } from '@risingstack/react-easy-state';
 
 const state = store({
@@ -41,6 +44,21 @@ const state = store({
     //   displayName: 'Kinesis WebRTC',
     //   id: 'kinesis-webrtc',
     // },
+    {
+      component: RedshiftDataApi,
+      displayName: 'Redshift Data API',
+      id: 'redshift-data-api',
+    },
+    {
+      component: ApiGateway,
+      displayName: 'API Gateway',
+      id: 'api-gateway-widget',
+    },
+    {
+      component: LexChatbot,
+      displayName: 'Lex Chatbot',
+      id: 'chatbot-widget',
+    },
     {
       component: DemoWidget,
       displayName: 'Demo Widget',

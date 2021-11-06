@@ -10,6 +10,7 @@ Amplify.configure(awsExports);
 
 ReactDOM.render(
   <React.Fragment>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
     <App />
   </React.Fragment>,
   document.getElementById('root')

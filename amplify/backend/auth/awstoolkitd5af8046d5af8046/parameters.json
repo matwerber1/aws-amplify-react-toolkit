@@ -26,7 +26,8 @@
         "email"
     ],
     "userpoolClientReadAttributes": [
-        "email"
+        "email",
+        "custom:iotPolicyIsAttached"
     ],
     "userpoolClientLambdaRole": "awstood5af8046_userpoolclient_lambda_role",
     "userpoolClientSetAttributes": false,
